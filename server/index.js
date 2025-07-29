@@ -77,7 +77,6 @@ app.post('/signed/:filename', uploadDisk.single('signed'), async (req, res) => {
   try {
     const signedImagePath = path.join(__dirname, 'uploads', req.file.filename);
     const originalFilename = decodeURIComponent(req.params.filename);
-    const originalPdf = await PDFDocument.load(fs.readFileSync(path.join(__dirname, 'uploads', originalFilename)));
 
     let signatureBytes;
 
@@ -124,6 +123,10 @@ app.post('/signed/:filename', uploadDisk.single('signed'), async (req, res) => {
 app.use((err, req, res, next) => {
   console.error('Unhandled error:', err);
   res.status(500).send('Internal Server Error');
+});
+
+app.get("/", (req, res) => {
+  res.send("Server is running");
 });
 
 // app.listen(3001, () => {

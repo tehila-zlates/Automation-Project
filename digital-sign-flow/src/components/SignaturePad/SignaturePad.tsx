@@ -12,7 +12,6 @@ function SignDocument({ fileUrl, onSigned }: { fileUrl: string, onSigned: (blob:
   const isRenderingRef = useRef(false);
 
   useEffect(() => {
-
     const loadPDF = async () => {
       if (isRenderingRef.current) {
         return;
@@ -66,7 +65,7 @@ function SignDocument({ fileUrl, onSigned }: { fileUrl: string, onSigned: (blob:
   }, [fileUrl]);
 
 
-  const startDrawing = (e: React.MouseEvent) => {
+  const startDrawing = (e: any) => {
     setIsDrawing(true);
     const ctx = canvasRef.current?.getContext('2d');
     if (ctx) {
@@ -75,7 +74,7 @@ function SignDocument({ fileUrl, onSigned }: { fileUrl: string, onSigned: (blob:
     }
   };
 
-  const draw = (e: React.MouseEvent) => {
+  const draw = (e: any) => {
     if (!isDrawing) return;
     const ctx = canvasRef.current?.getContext('2d');
     if (ctx) {

@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { useParams } from 'react-router-dom';
 import validator from 'validator';
 
 function UploadForm() {
@@ -7,7 +6,6 @@ function UploadForm() {
   const [file, setFile] = useState<File | null>(null);
   const [error, setError] = useState('');
   const [fileUrl, setFileUrl] = useState('');
-  const { filename } = useParams();
 
   const validateEmail = (email: string) => validator.isEmail(email);
   const handleSubmit = async (e: any) => {
