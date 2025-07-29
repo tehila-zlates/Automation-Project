@@ -23,7 +23,7 @@ function UploadForm() {
     formData.append('file', file);
 
     try {
-      const res = await fetch('http://localhost:3001/upload', {
+      const res = await fetch('https://automation-project-server.onrender.com/upload', {
         method: 'POST',
         body: formData,
       });
