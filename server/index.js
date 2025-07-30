@@ -229,10 +229,13 @@ app.post('/upload', uploadMemory.single('file'), async (req, res) => {
     fileBufferMap.set(finalFilename, finalBuffer);
     emailMap.set(finalFilename, email);
 
-    res.json({
-      fileUrl: `http://YOUR_DOMAIN_OR_IP/file/${finalFilename}`,  // תשני לכתובת שלך בשרת בענן
-      signPageUrl: `http://YOUR_CLIENT_DOMAIN/sign/${finalFilename}`  // תשני לכתובת ה-React שלך
-    });
+   const baseUrl = `http://localhost:3001` || 'https://automation-project-server.onrender.com';
+const clientUrl =  `http://localhost:3000` || 'https://your-frontend.vercel.app';
+
+res.json({
+  fileUrl: `${baseUrl}/uploads/${finalFilename}`,
+  signPageUrl: `${clientUrl}/sign/${finalFilename}`
+});
 
   } catch (err) {
     console.error("Upload error:", err);
