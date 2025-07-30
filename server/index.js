@@ -63,10 +63,19 @@ app.post('/upload', uploadMemory.single('file'), async (req, res) => {
     }
 
     emailMap.set(finalFilename, email);
-    res.json({
-      fileUrl: `http://localhost:3001/uploads/${finalFilename}`,
-      signPageUrl: `http://localhost:3000/sign/${finalFilename}`
-    });
+
+const baseUrl = process.env.BASE_URL || 'https://automation-project-server.onrender.com';
+const clientUrl = process.env.CLIENT_URL || 'https://automation-digital-sign-flow.onrender.com';
+
+res.json({
+  fileUrl: `${baseUrl}/uploads/${finalFilename}`,
+  signPageUrl: `${clientUrl}/sign/${finalFilename}`
+});
+
+    // res.json({
+    //   fileUrl: `http://localhost:3001/uploads/${finalFilename}`,
+    //   signPageUrl: `http://localhost:3000/sign/${finalFilename}`
+    // });
   } catch (err) {
     console.error("Upload error:", err);
     res.status(500).send('Internal Server Error');
