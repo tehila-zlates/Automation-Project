@@ -5,10 +5,8 @@ import SignDocument from '../SignaturePad/SignaturePad';
 function SignPage() {
   const { filename } = useParams();
   const [done, setDone] = useState(false);
-useEffect(()=>{
-  "dvevc"
-},[])
-    const fileUrl = useMemo(() => {
+
+  const fileUrl = useMemo(() => {
     return `https://automation-project-server.onrender.com/uploads/${filename}`;
   }, [filename]);
 
