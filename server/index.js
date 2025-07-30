@@ -65,7 +65,7 @@ app.post('/upload', uploadMemory.single('file'), async (req, res) => {
     emailMap.set(finalFilename, email);
 
 const baseUrl = `http://localhost:3001` || 'https://automation-project-server.onrender.com';
-const clientUrl =  `http://localhost:3000` || 'https://your-frontend.vercel.app';
+const clientUrl =  `http://localhost:3000` || 'https://automation-digital-sign-flow.onrender.com';
 
 res.json({
   fileUrl: `${baseUrl}/uploads/${finalFilename}`,
