@@ -112,6 +112,7 @@
 
 
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import validator from 'validator';
 
 function UploadForm() {
@@ -119,6 +120,7 @@ function UploadForm() {
   const [file, setFile] = useState<File | null>(null);
   const [error, setError] = useState('');
   const [fileUrl, setFileUrl] = useState('');
+  const navigate = useNavigate();
 
   const validateEmail = (email: string) => validator.isEmail(email);
   const handleSubmit = async (e: any) => {
@@ -153,7 +155,9 @@ const res = await fetch('https://automation-project-server.onrender.com/upload',
       alert('Upload failed');
     }
   };
-
+const handleUploadSuccess = (filename: string) => {
+    navigate(`/sign/${encodeURIComponent(filename)}`);
+  };
   return (
     <div>
       <h2>העלאת מסמך</h2>
@@ -192,9 +196,9 @@ const res = await fetch('https://automation-project-server.onrender.com/upload',
         </button>
       </form>
       {fileUrl && (
-        <a href={encodeURI(fileUrl)} target="_blank" rel="noopener noreferrer">
-          לצפייה בקובץ ולחתימה
-        </a>
+         <button onClick={() => handleUploadSuccess('example.pdf')}>
+      חתימה
+    </button>
       )}
     </div>
   );
