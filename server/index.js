@@ -195,7 +195,11 @@ app.post('/upload', uploadMemory.single('file'), async (req, res) => {
       });
 
       fs.writeFileSync(uploadPath, await pdfDoc.save());
+      return res.status(400).send('111');
+
     } else if (file.mimetype === 'application/pdf') {
+      return res.status(400).send('222');
+
       finalFilename = Date.now() + '-' + file.originalname;
       fs.writeFileSync(path.join(__dirname, 'uploads', finalFilename), file.buffer);
     } else {
