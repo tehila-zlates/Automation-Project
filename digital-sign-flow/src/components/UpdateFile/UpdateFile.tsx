@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import validator from 'validator';
+import SignPage from '../SignPage/SignPage';
 
 function UploadForm() {
   const [email, setEmail] = useState('');
@@ -30,7 +31,7 @@ function UploadForm() {
 
       const data = await res.json();
       console.log(data);
-      
+
       if (res.ok) {
         setFileUrl(data.signPageUrl);
         setFileUrl(data.signPageUrl);
@@ -42,7 +43,10 @@ function UploadForm() {
       alert('Upload failed');
     }
   };
+const aa=()=>{
+        <SignPage></SignPage>
 
+}
   return (
     <div>
       <h2>העלאת מסמך</h2>
@@ -81,19 +85,22 @@ function UploadForm() {
         </button>
       </form>
       {fileUrl && (
+        <button className="btn btn-success mt-2" onClick={aa}>
+        סיום חתימה ושליחה
+      </button>
         // <a href={encodeURI(fileUrl)} target="_blank" rel="noopener noreferrer">
         //   לצפייה בקובץ ולחתימה
         // </a>
-        <a
-  href={encodeURI(fileUrl)}
-  target="_blank"
-  rel="noopener noreferrer"
-  onClick={() => {
-    console.log("נלחץ על הקישור לחתימה", fileUrl);
-  }}
->
-  לצפייה בקובץ ולחתימה
-</a>
+        // <a
+        //   href={encodeURI(fileUrl)}
+        //   target="_blank"
+        //   rel="noopener noreferrer"
+        //   onClick={() => {
+        //     console.log("נלחץ על הקישור לחתימה", fileUrl);
+        //   }}
+        // >
+        //   לצפייה בקובץ ולחתימה
+        // </a>
 
       )}
     </div>
