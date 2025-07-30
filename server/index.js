@@ -164,6 +164,14 @@ const app = express();
 app.use(cors());
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
+app.use((req, res, next) => {
+  if (req.method === 'GET' && !req.path.startsWith('/api') && !req.path.includes('.')) {
+    res.sendFile(path.join(__dirname, 'digital-sign-flow/build', 'index.html'));
+  } else {
+    next();
+  }
+});
+
 const emailMap = new Map();
 
 const memoryStorage = multer.memoryStorage();
