@@ -152,9 +152,10 @@ function SignPage() {
       canvas.width = viewport.width;
 
       const renderContext = {
-        canvasContext: context!,
-        viewport: viewport,
-      };
+      canvas: canvas,
+      canvasContext: context!,
+      viewport: viewport
+    };
 
       await page.render(renderContext).promise;
     };
