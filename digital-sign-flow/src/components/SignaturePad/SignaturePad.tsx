@@ -28,25 +28,29 @@ function SignDocument({ fileUrl, onSigned }: { fileUrl: string, onSigned: (blob:
       }
 
       try {
-    console.log("gyvhvjhb");
 
         const loadingTask = pdfjsLib.getDocument(fileUrl);
         const pdf = await loadingTask.promise;
         const page = await pdf.getPage(1);
+    console.log("111");
 
         const rotation = page.rotate;
         const scale = 1.5;
         const viewport = page.getViewport({ scale, rotation });
+    console.log("222");
 
         const canvas = canvasRef.current;
         const context = canvas?.getContext('2d');
         if (canvas && context) {
           canvas.width = viewport.width;
           canvas.height = viewport.height;
+    console.log("333");
 
           renderTaskRef.current = page.render({ canvasContext: context, viewport });
           await renderTaskRef.current.promise;
           renderTaskRef.current = null;
+    console.log("444");
+
         }
       } catch (error) {
         if ((error as any).name === 'RenderingCancelledException') {
