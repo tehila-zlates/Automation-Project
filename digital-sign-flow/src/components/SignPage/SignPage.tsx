@@ -64,119 +64,67 @@
 
 
 
-// import React, { useState, useMemo } from 'react';
-// import { useNavigate, useParams } from 'react-router-dom';
-// import SignDocument from '../SignaturePad/SignaturePad';
+import React, { useState, useMemo } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import SignDocument from '../SignaturePad/SignaturePad';
 
-// function SignPage() {
-//   const { filename } = useParams();
-//   const [done, setDone] = useState(false);
-//   const navigate = useNavigate();
+function SignPage() {
+  const { filename } = useParams();
+  const [done, setDone] = useState(false);
+  const navigate = useNavigate();
 
-//   const fileUrl = useMemo(() => {
-//     // return `https://automation-digital-sign-flow.onrender.com/uploads/${filename}`;
-// return `https://automation-project-server.onrender.com/uploads/${filename}`;
+  const fileUrl = useMemo(() => {
+    // return `https://automation-digital-sign-flow.onrender.com/uploads/${filename}`;
+return `https://automation-project-server.onrender.com/uploads/${filename}`;
 
-// }, [filename]);
+}, [filename]);
 
-//   if (!filename) {
-//     return <p>שם הקובץ לא זמין</p>;
-//   }
+  if (!filename) {
+    return <p>שם הקובץ לא זמין</p>;
+  }
 
-//   const handleSigned = async (blob: Blob) => {
-//     try {
-//       const formData = new FormData();
-//       formData.append('signed', blob, 'signature.png');
-//       formData.append('originalFilename', filename);
+  const handleSigned = async (blob: Blob) => {
+    try {
+      const formData = new FormData();
+      formData.append('signed', blob, 'signature.png');
+      formData.append('originalFilename', filename);
 
-//       // const response = await fetch(`http://localhost:3001/signed/${filename}`, {
-// const response = await fetch(`https://automation-project-server.onrender.com/signed/${filename}`, {
+      // const response = await fetch(`http://localhost:3001/signed/${filename}`, {
+const response = await fetch(`https://automation-project-server.onrender.com/signed/${filename}`, {
 
-//         method: 'POST',
-//         body: formData,
-//       });
+        method: 'POST',
+        body: formData,
+      });
 
-//       const contentType = response.headers.get("content-type");
-//       const isJson = contentType?.includes("application/json");
+      const contentType = response.headers.get("content-type");
+      const isJson = contentType?.includes("application/json");
 
-//       const responseData = isJson
-//         ? await response.json()
-//         : await response.text();
+      const responseData = isJson
+        ? await response.json()
+        : await response.text();
 
-//       if (!response.ok) {
-//         console.warn("שגיאת fetch - לא סטטוס 200");
-//         alert('שגיאה בשליחת הקובץ החתום:\n' + JSON.stringify(responseData, null, 2));
-//         return;
-//       }
-
-//       setDone(true);
-//     } catch (err) {
-//       console.error("שגיאה כללית ב-fetch:", err);
-//       alert("שגיאה בשליחת הקובץ:\n" + (err as Error).message);
-//     }
-//   };
-
-//   if (done) return <p>הקובץ נחתם ונשלח למייל בהצלחה!</p>;
-// const handleUploadSuccess = (filename: string) => {
-//     navigate(`/sign/${encodeURIComponent(filename)}`);
-//   };
-//   return (
-//     <button onClick={() => handleUploadSuccess('example.pdf')}>
-//       חתימה
-//     </button>
-//   );
-// }
-
-// export default SignPage;
-
-
-import React, { useEffect, useRef } from 'react';
-import { useParams } from 'react-router-dom';
-import { pdfjs } from 'react-pdf';
-
-// הגדרת worker ל-PDF.js (שורה חובה כדי שזה יעבוד)
-pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
-
-const SignPage: React.FC = () => {
-  const { filename } = useParams(); // שם הקובץ מה-URL
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-
-  useEffect(() => {
-    const loadPdf = async () => {
-      if (!filename) return;
-
-      try {
-        const url = `https://your-server.com/uploads/${encodeURIComponent(filename)}`;
-        const loadingTask = pdfjs.getDocument(url);
-        const pdf = await loadingTask.promise;
-        const page = await pdf.getPage(1);
-
-        const viewport = page.getViewport({ scale: 1.5 });
-        const canvas = canvasRef.current!;
-        const context = canvas.getContext('2d')!;
-        canvas.width = viewport.width;
-        canvas.height = viewport.height;
-
-        const renderContext = {
-          canvasContext: context,
-          viewport,
-        };
-
-        await page.render(renderContext).promise;
-      } catch (error) {
-        console.error('שגיאה בטעינת ה-PDF:', error);
+      if (!response.ok) {
+        console.warn("שגיאת fetch - לא סטטוס 200");
+        alert('שגיאה בשליחת הקובץ החתום:\n' + JSON.stringify(responseData, null, 2));
+        return;
       }
-    };
 
-    loadPdf();
-  }, [filename]);
+      setDone(true);
+    } catch (err) {
+      console.error("שגיאה כללית ב-fetch:", err);
+      alert("שגיאה בשליחת הקובץ:\n" + (err as Error).message);
+    }
+  };
 
+  if (done) return <p>הקובץ נחתם ונשלח למייל בהצלחה!</p>;
+const handleUploadSuccess = (filename: string) => {
+    navigate(`/sign/${encodeURIComponent(filename)}`);
+  };
   return (
-    <div style={{ textAlign: 'center', padding: '2rem' }}>
-      <h2>תצוגת קובץ לחתימה</h2>
-      <canvas ref={canvasRef} style={{ border: '1px solid black' }} />
-    </div>
+    <button onClick={() => handleUploadSuccess('example.pdf')}>
+      חתימה
+    </button>
   );
-};
+}
 
 export default SignPage;
