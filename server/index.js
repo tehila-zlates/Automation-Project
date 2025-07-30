@@ -64,13 +64,13 @@ app.post('/upload', uploadMemory.single('file'), async (req, res) => {
 
     emailMap.set(finalFilename, email);
 
-const baseUrl = `http://localhost:3001` || 'https://automation-project-server.onrender.com';
-const clientUrl =  `http://localhost:3000` || 'https://automation-digital-sign-flow.onrender.com';
+    const baseUrl = `http://localhost:3001` || 'https://automation-project-server.onrender.com';
+    const clientUrl = `http://localhost:3000` || 'https://automation-digital-sign-flow.onrender.com';
 
-res.json({
-  fileUrl: `https://automation-project-server.onrender.com/uploads/${finalFilename}`,
-  signPageUrl: `https://automation-digital-sign-flow.onrender.com/sign/${finalFilename}`
-});
+    res.json({
+      fileUrl: `https://automation-project-server.onrender.com/uploads/${finalFilename}`,
+      signPageUrl: `https://automation-project-server.onrender.com/uploads/${finalFilename}`
+    });
 
     // res.json({
     //   fileUrl: `http://localhost:3001/uploads/${finalFilename}`,

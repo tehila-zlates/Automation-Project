@@ -15,7 +15,7 @@ function App() {
    <Router>
       <Routes>
         <Route path="/" element={<UploadForm></UploadForm>} />
-        <Route path="/sign/:filename" element={<SignPage></SignPage>} />
+        <Route path="/uploads/:filename" element={<SignPage></SignPage>} />
       </Routes>
     </Router>
   );
