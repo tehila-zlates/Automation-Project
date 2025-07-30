@@ -14,7 +14,6 @@ function SignDocument({ fileUrl, onSigned }: { fileUrl: string, onSigned: (blob:
   const isRenderingRef = useRef(false);
 
   useEffect(() => {
-    console.log("gyvhvjhb");
     
     const loadPDF = async () => {
       if (isRenderingRef.current) {
@@ -29,6 +28,8 @@ function SignDocument({ fileUrl, onSigned }: { fileUrl: string, onSigned: (blob:
       }
 
       try {
+    console.log("gyvhvjhb");
+
         const loadingTask = pdfjsLib.getDocument(fileUrl);
         const pdf = await loadingTask.promise;
         const page = await pdf.getPage(1);
