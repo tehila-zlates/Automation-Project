@@ -183,6 +183,8 @@ const transporter = nodemailer.createTransport({
   }
 });
 
+
+
 app.post('/upload', uploadMemory.single('file'), async (req, res) => {
   try {
     const { file } = req;
@@ -231,6 +233,8 @@ app.post('/signed/:filename', uploadDisk.single('signed'), async (req, res) => {
   try {
     const signedImagePath = path.join(__dirname, 'uploads', req.file.filename);
     const originalFilename = decodeURIComponent(req.params.filename);
+    const originalPdf = await PDFDocument.load(fs.readFileSync(path.join(__dirname, 'uploads', originalFilename)));
+
 
     let signatureBytes;
 
