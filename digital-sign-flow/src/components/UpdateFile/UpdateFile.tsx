@@ -29,6 +29,8 @@ function UploadForm() {
       });
 
       const data = await res.json();
+      console.log(data);
+      
       if (res.ok) {
         // כאן מציגים את דף החתימה (ה-React route)
         setFileUrl(data.signPageUrl);
