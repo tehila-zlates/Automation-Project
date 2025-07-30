@@ -32,7 +32,8 @@ function UploadForm() {
       console.log(data);
       
       if (res.ok) {
-        setFileUrl(data.filename);
+        setFileUrl(data.signPageUrl);
+        setFileUrl(data.signPageUrl);
       } else {
         alert(data.message || 'Error uploading file');
       }
@@ -80,11 +81,20 @@ function UploadForm() {
         </button>
       </form>
       {fileUrl && (
-        <a href={`https://automation-digital-sign-flow.onrender.com/sign/${fileUrl}`} target="_blank">
+        // <a href={encodeURI(fileUrl)} target="_blank" rel="noopener noreferrer">
+        //   לצפייה בקובץ ולחתימה
+        // </a>
+        <a
+  href={encodeURI(fileUrl)}
+  target="_blank"
+  rel="noopener noreferrer"
+  onClick={() => {
+    console.log("נלחץ על הקישור לחתימה", fileUrl);
+  }}
+>
+  לצפייה בקובץ ולחתימה
+</a>
 
-        {/* <a href={encodeURI(fileUrl)} target="_blank" rel="noopener noreferrer"> */}
-          לצפייה בקובץ ולחתימה
-        </a>
       )}
     </div>
   );
