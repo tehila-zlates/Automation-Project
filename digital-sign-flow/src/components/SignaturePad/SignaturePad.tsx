@@ -14,6 +14,8 @@ function SignDocument({ fileUrl, onSigned }: { fileUrl: string, onSigned: (blob:
   const isRenderingRef = useRef(false);
 
   useEffect(() => {
+    console.log("gyvhvjhb");
+    
     const loadPDF = async () => {
       if (isRenderingRef.current) {
         return;
