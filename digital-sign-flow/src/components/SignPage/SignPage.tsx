@@ -9,7 +9,7 @@ function SignPage() {
   const fileUrl = useMemo(() => {
     console.log("huuhuhiuhi");
     
-    return `http://automation-project-server.onrender.com/uploads/${filename}`;
+    return `https://automation-project-server.onrender.com/uploads/${filename}`;
   }, [filename]);
 
   console.log("🔗 fileUrl for signing:", fileUrl);
