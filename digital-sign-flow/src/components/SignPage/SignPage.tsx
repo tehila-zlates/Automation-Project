@@ -8,9 +8,12 @@ function SignPage() {
 useEffect(()=>{
   "dvevc"
 },[])
-  const fileUrl = useMemo(() => {
-    return `https://automation-digital-sign-flow.onrender.com/${filename}`;
+    const fileUrl = useMemo(() => {
+    return `https://automation-project-server.onrender.com/uploads/${filename}`;
   }, [filename]);
+
+  console.log("🔗 fileUrl for signing:", fileUrl);
+
 
   if (!filename) {
     return <p>שם הקובץ לא זמין</p>;
