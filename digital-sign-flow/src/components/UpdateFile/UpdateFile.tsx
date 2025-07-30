@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import validator from 'validator';
 import SignPage from '../SignPage/SignPage';
+import { useNavigate } from 'react-router-dom';
 
 function UploadForm() {
   const [email, setEmail] = useState('');
   const [file, setFile] = useState<File | null>(null);
   const [error, setError] = useState('');
   const [fileUrl, setFileUrl] = useState('');
+  const navigate = useNavigate();
 
   const validateEmail = (email: string) => validator.isEmail(email);
   const handleSubmit = async (e: any) => {
@@ -33,8 +35,7 @@ function UploadForm() {
       console.log(data);
 
       if (res.ok) {
-        setFileUrl(data.signPageUrl);
-        setFileUrl(data.signPageUrl);
+        setFileUrl(data.filename);
       } else {
         alert(data.message || 'Error uploading file');
       }
@@ -43,10 +44,10 @@ function UploadForm() {
       alert('Upload failed');
     }
   };
-const aa=()=>{
-        <SignPage></SignPage>
-
-}
+  const aa = () => {
+    const filename = "somefile.pdf"; // או כל ערך אחר שתרצי
+    navigate(`/sign/${fileUrl}`);
+  };
   return (
     <div>
       <h2>העלאת מסמך</h2>
@@ -86,8 +87,8 @@ const aa=()=>{
       </form>
       {fileUrl && (
         <button className="btn btn-success mt-2" onClick={aa}>
-        סיום חתימה ושליחה
-      </button>
+          סיום חתימה ושליחה
+        </button>
         // <a href={encodeURI(fileUrl)} target="_blank" rel="noopener noreferrer">
         //   לצפייה בקובץ ולחתימה
         // </a>
