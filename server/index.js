@@ -228,9 +228,9 @@ app.post('/upload', uploadMemory.single('file'), async (req, res) => {
 
     emailMap.set(finalFilename, email);
     res.json({
-      fileUrl: `https://automation-project-server.onrender.com/uploads/${finalFilename}`,
-      signPageUrl: `https://automation-project-server.onrender.com/sign/${finalFilename}`
-    });
+  fileUrl: `https://automation-project-server.onrender.com/uploads/${finalFilename}`, 
+  signPageUrl: `https://automation-digital-sign-flow.onrender.com/sign/${finalFilename}`
+});
   } catch (err) {
     console.error("222", err);
     res.status(500).send('111');
