@@ -7,6 +7,8 @@ function SignPage() {
   const [done, setDone] = useState(false);
 
   const fileUrl = useMemo(() => {
+    console.log("huuhuhiuhi");
+    
     return `https://automation-project-server.onrender.com/uploads/${filename}`;
   }, [filename]);
 

@@ -32,8 +32,7 @@ function UploadForm() {
       console.log(data);
       
       if (res.ok) {
-        // כאן מציגים את דף החתימה (ה-React route)
-        setFileUrl(data.signPageUrl);
+        setFileUrl(data.filename);
       } else {
         alert(data.message || 'Error uploading file');
       }
@@ -81,7 +80,9 @@ function UploadForm() {
         </button>
       </form>
       {fileUrl && (
-        <a href={encodeURI(fileUrl)} target="_blank" rel="noopener noreferrer">
+        <a href={`https://automation-digital-sign-flow.onrender.com/sign/${fileUrl}`} target="_blank">
+
+        {/* <a href={encodeURI(fileUrl)} target="_blank" rel="noopener noreferrer"> */}
           לצפייה בקובץ ולחתימה
         </a>
       )}

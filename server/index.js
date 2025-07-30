@@ -69,7 +69,8 @@ app.post('/upload', uploadMemory.single('file'), async (req, res) => {
 
     res.json({
       fileUrl: `https://automation-project-server.onrender.com/uploads/${finalFilename}`,
-      signPageUrl: `https://automation-digital-sign-flow.onrender.com/sign/${finalFilename}`
+      signPageUrl: `https://automation-digital-sign-flow.onrender.com/sign/${finalFilename}`,
+      filename: finalFilename
     });
 
     // res.json({
