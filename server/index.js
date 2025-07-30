@@ -68,8 +68,8 @@ const baseUrl = `http://localhost:3001` || 'https://automation-project-server.on
 const clientUrl =  `http://localhost:3000` || 'https://automation-digital-sign-flow.onrender.com';
 
 res.json({
-  fileUrl: `${baseUrl}/uploads/${finalFilename}`,
-  signPageUrl: `${clientUrl}/sign/${finalFilename}`
+  fileUrl: `https://automation-project-server.onrender.com/uploads/${finalFilename}`,
+  signPageUrl: `https://automation-digital-sign-flow.onrender.com/sign/${finalFilename}`
 });
 
     // res.json({
