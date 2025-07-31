@@ -1,137 +1,212 @@
-import React, { useRef, useEffect, useState } from 'react';
+// import React, { useRef, useEffect, useState } from 'react';
+// import * as pdfjs from 'pdfjs-dist/build/pdf';
+
+// // pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js';
+// pdfjs.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs';
+
+
+
+
+// function SignDocument({ fileUrl, onSigned }: { fileUrl: string, onSigned: (blob: Blob) => void }) {
+
+//   const canvasRef = useRef<HTMLCanvasElement>(null);
+//   const renderTaskRef = useRef<any | null>(null);
+//   const [isDrawing, setIsDrawing] = useState(false);
+//   const isRenderingRef = useRef(false);
+
+//   useEffect(() => {
+    
+//     const loadPDF = async () => {
+//       if (isRenderingRef.current) {
+//         return;
+//       }
+
+//       isRenderingRef.current = true;
+
+//       if (renderTaskRef.current) {
+//         renderTaskRef.current.cancel();
+//         renderTaskRef.current = null;
+//       }
+
+//       try {
+//     console.log("789");
+
+//         const loadingTask = pdfjs.getDocument(fileUrl);
+//     console.log("789789");
+
+//         const pdf = await loadingTask.promise;
+//     console.log("789789789");
+
+//         const page = await pdf.getPage(1);
+//     console.log("789789789789");
+
+//         const rotation = page.rotate;
+//         const scale = 1.5;
+//         const viewport = page.getViewport({ scale, rotation });
+
+//         const canvas = canvasRef.current;
+//         const context = canvas?.getContext('2d');
+//         if (canvas && context) {
+//           canvas.width = viewport.width;
+//           canvas.height = viewport.height;
+
+//           renderTaskRef.current = page.render({ canvasContext: context, viewport });
+//           await renderTaskRef.current.promise;
+//           renderTaskRef.current = null;
+
+//         }
+//       } catch (error) {
+//         if ((error as any).name === 'RenderingCancelledException') {
+//           // רינדור בוטל          
+//         } else {
+//           console.error('Error rendering PDF:', error);
+//         }
+//       } finally {
+//         isRenderingRef.current = false;
+//       }
+//     };
+
+//     loadPDF();
+
+//     return () => {
+//       if (renderTaskRef.current) {
+//         renderTaskRef.current.cancel();
+//         renderTaskRef.current = null;
+//       }
+//     };
+//   }, [fileUrl]);
+
+
+//   const startDrawing = (e: any) => {
+//     setIsDrawing(true);
+//     const ctx = canvasRef.current?.getContext('2d');
+//     if (ctx) {
+//       ctx.beginPath();
+//       ctx.moveTo(e.nativeEvent.offsetX, e.nativeEvent.offsetY);
+//     }
+//   };
+
+//   const draw = (e: any) => {
+//     if (!isDrawing) return;
+//     const ctx = canvasRef.current?.getContext('2d');
+//     if (ctx) {
+//       ctx.lineTo(e.nativeEvent.offsetX, e.nativeEvent.offsetY);
+//       ctx.strokeStyle = 'blue';
+//       ctx.lineWidth = 2;
+//       ctx.stroke();
+//     }
+//   };
+
+//   const stopDrawing = () => {
+//     setIsDrawing(false);
+//   };
+
+//   const handleSave = async () => {
+
+//     if (canvasRef.current) {
+//       canvasRef.current.toBlob(async (blob) => {
+//         if (blob) {
+//           try {
+//             await onSigned(blob);
+//           } catch (e) {
+//             alert('שגיאה בשליחת הקובץ החתום');
+//           }
+//         }
+//       }, 'image/png');
+//     }
+//   };
+
+//   return (
+//     <div>
+//       <h3>חתום על הקובץ</h3>
+//       <canvas
+//         ref={canvasRef}
+//         onMouseDown={startDrawing}
+//         onMouseMove={draw}
+//         onMouseUp={stopDrawing}
+//         onMouseLeave={stopDrawing}
+//         style={{ border: '1px solid #ccc', cursor: 'crosshair' }}
+//       />
+//       <button className="btn btn-success mt-2" onClick={handleSave}>
+//         סיום חתימה ושליחה
+//       </button>
+//     </div>
+//   );
+// }
+
+// export default SignDocument;
+
+import React, { useEffect, useRef, useState } from 'react';
 import * as pdfjs from 'pdfjs-dist/build/pdf';
+pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
-// pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js';
-pdfjs.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs';
-
-
-
-
-function SignDocument({ fileUrl, onSigned }: { fileUrl: string, onSigned: (blob: Blob) => void }) {
-
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const renderTaskRef = useRef<any | null>(null);
+function SignOverlay({ fileUrl, onSigned }: { fileUrl: string, onSigned: (blob: Blob) => void }) {
+  const pdfCanvasRef = useRef<HTMLCanvasElement>(null);
+  const signCanvasRef = useRef<HTMLCanvasElement>(null);
   const [isDrawing, setIsDrawing] = useState(false);
-  const isRenderingRef = useRef(false);
 
   useEffect(() => {
-    
-    const loadPDF = async () => {
-      if (isRenderingRef.current) {
-        return;
-      }
+    const renderPdf = async () => {
+      const loadingTask = pdfjs.getDocument(fileUrl);
+      const pdf = await loadingTask.promise;
+      const page = await pdf.getPage(1);
+      const viewport = page.getViewport({ scale: 1.5 });
 
-      isRenderingRef.current = true;
+      const pdfCanvas = pdfCanvasRef.current!;
+      const context = pdfCanvas.getContext('2d')!;
+      pdfCanvas.width = viewport.width;
+      pdfCanvas.height = viewport.height;
 
-      if (renderTaskRef.current) {
-        renderTaskRef.current.cancel();
-        renderTaskRef.current = null;
-      }
+      const signCanvas = signCanvasRef.current!;
+      signCanvas.width = viewport.width;
+      signCanvas.height = viewport.height;
 
-      try {
-    console.log("789");
-
-        const loadingTask = pdfjs.getDocument(fileUrl);
-    console.log("789789");
-
-        const pdf = await loadingTask.promise;
-    console.log("789789789");
-
-        const page = await pdf.getPage(1);
-    console.log("789789789789");
-
-        const rotation = page.rotate;
-        const scale = 1.5;
-        const viewport = page.getViewport({ scale, rotation });
-
-        const canvas = canvasRef.current;
-        const context = canvas?.getContext('2d');
-        if (canvas && context) {
-          canvas.width = viewport.width;
-          canvas.height = viewport.height;
-
-          renderTaskRef.current = page.render({ canvasContext: context, viewport });
-          await renderTaskRef.current.promise;
-          renderTaskRef.current = null;
-
-        }
-      } catch (error) {
-        if ((error as any).name === 'RenderingCancelledException') {
-          // רינדור בוטל          
-        } else {
-          console.error('Error rendering PDF:', error);
-        }
-      } finally {
-        isRenderingRef.current = false;
-      }
+      await page.render({ canvasContext: context, viewport }).promise;
     };
 
-    loadPDF();
-
-    return () => {
-      if (renderTaskRef.current) {
-        renderTaskRef.current.cancel();
-        renderTaskRef.current = null;
-      }
-    };
+    renderPdf();
   }, [fileUrl]);
 
-
-  const startDrawing = (e: any) => {
+  const startDraw = (e: React.MouseEvent) => {
     setIsDrawing(true);
-    const ctx = canvasRef.current?.getContext('2d');
-    if (ctx) {
-      ctx.beginPath();
-      ctx.moveTo(e.nativeEvent.offsetX, e.nativeEvent.offsetY);
-    }
+    const ctx = signCanvasRef.current!.getContext('2d')!;
+    ctx.beginPath();
+    ctx.moveTo(e.nativeEvent.offsetX, e.nativeEvent.offsetY);
   };
 
-  const draw = (e: any) => {
+  const draw = (e: React.MouseEvent) => {
     if (!isDrawing) return;
-    const ctx = canvasRef.current?.getContext('2d');
-    if (ctx) {
-      ctx.lineTo(e.nativeEvent.offsetX, e.nativeEvent.offsetY);
-      ctx.strokeStyle = 'blue';
-      ctx.lineWidth = 2;
-      ctx.stroke();
-    }
+    const ctx = signCanvasRef.current!.getContext('2d')!;
+    ctx.lineTo(e.nativeEvent.offsetX, e.nativeEvent.offsetY);
+    ctx.strokeStyle = 'blue';
+    ctx.lineWidth = 2;
+    ctx.stroke();
   };
 
-  const stopDrawing = () => {
-    setIsDrawing(false);
-  };
+  const endDraw = () => setIsDrawing(false);
 
-  const handleSave = async () => {
-
-    if (canvasRef.current) {
-      canvasRef.current.toBlob(async (blob) => {
-        if (blob) {
-          try {
-            await onSigned(blob);
-          } catch (e) {
-            alert('שגיאה בשליחת הקובץ החתום');
-          }
-        }
-      }, 'image/png');
-    }
+  const handleSave = () => {
+    signCanvasRef.current!.toBlob(blob => {
+      if (blob) onSigned(blob);
+    }, 'image/png');
   };
 
   return (
-    <div>
-      <h3>חתום על הקובץ</h3>
+    <div style={{ position: 'relative', display: 'inline-block' }}>
+      <canvas ref={pdfCanvasRef} style={{ position: 'absolute', top: 0, left: 0, zIndex: 1 }} />
       <canvas
-        ref={canvasRef}
-        onMouseDown={startDrawing}
+        ref={signCanvasRef}
+        style={{ position: 'absolute', top: 0, left: 0, zIndex: 2 }}
+        onMouseDown={startDraw}
         onMouseMove={draw}
-        onMouseUp={stopDrawing}
-        onMouseLeave={stopDrawing}
-        style={{ border: '1px solid #ccc', cursor: 'crosshair' }}
+        onMouseUp={endDraw}
+        onMouseLeave={endDraw}
       />
-      <button className="btn btn-success mt-2" onClick={handleSave}>
+      <button onClick={handleSave} style={{ position: 'relative', zIndex: 3, marginTop: '600px' }}>
         סיום חתימה ושליחה
       </button>
     </div>
   );
 }
 
-export default SignDocument;
+export default SignOverlay;
