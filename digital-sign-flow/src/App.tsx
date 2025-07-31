@@ -9,7 +9,9 @@ import UploadForm from './components/UpdateFile/UpdateFile';
 import SignPage from './components/SignPage/SignPage';
 
 // GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/5.4.54/pdf.worker.min.mjs`;
+import * as pdfjsLib from 'pdfjs-dist';
 
+pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs';
 function App() {
   return (
    <Router>
