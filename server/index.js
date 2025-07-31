@@ -172,6 +172,13 @@ app.use((req, res, next) => {
   }
 });
 
+app.use(express.static(path.join(__dirname, 'public')));
+
+// בקשה שלא מזוהה – תחזיר index.html
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
 const emailMap = new Map();
 
 const memoryStorage = multer.memoryStorage();
