@@ -27,13 +27,16 @@ function SignDocument({ fileUrl, onSigned }: { fileUrl: string, onSigned: (blob:
       }
 
       try {
-    console.log("222");
+    console.log("789");
 
         const loadingTask = pdfjs.getDocument(fileUrl);
-    console.log("111");
+    console.log("789789");
 
         const pdf = await loadingTask.promise;
+    console.log("789789789");
+
         const page = await pdf.getPage(1);
+    console.log("789789789789");
 
         const rotation = page.rotate;
         const scale = 1.5;
