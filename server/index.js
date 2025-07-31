@@ -164,7 +164,13 @@ const app = express();
 app.use(cors());
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-app.use(express.static(path.join(__dirname, 'digital-sign-flow/public')));
+app.use((req, res, next) => {
+  if (req.method === 'GET' && !req.path.startsWith('/api') && !req.path.includes('.')) {
+    res.sendFile(path.join(__dirname, 'digital-sign-flow/build', 'index.html'));
+  } else {
+    next();
+  }
+});
 
 const emailMap = new Map();
 
@@ -184,6 +190,8 @@ const transporter = nodemailer.createTransport({
     pass: 'updj gcqq jxnh krjj'
   }
 });
+
+
 
 app.post('/upload', uploadMemory.single('file'), async (req, res) => {
   try {
@@ -283,9 +291,8 @@ app.use((err, req, res, next) => {
   res.status(500).send('Internal Server Error');
 });
 
-// בקשה שלא מזוהה – תחזיר index.html
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+app.get("/", (req, res) => {
+  res.send("Server is running");
 });
 
 // app.listen(3001, () => {
