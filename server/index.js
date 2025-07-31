@@ -298,10 +298,6 @@ app.use((err, req, res, next) => {
   res.status(500).send('Internal Server Error');
 });
 
-app.get("/", (req, res) => {
-  res.send("Server is running");
-});
-
 // app.listen(3001, () => {
 //   console.log('Server running at http://localhost:3001');
 // });
