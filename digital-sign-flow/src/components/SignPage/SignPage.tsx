@@ -64,91 +64,20 @@
 
 
 
-// // import React, { useState, useMemo } from 'react';
-// // import { useNavigate, useParams } from 'react-router-dom';
-// // import SignDocument from '../SignaturePad/SignaturePad';
-
-// // function SignPage() {
-// //   const { filename } = useParams();
-// //   const [done, setDone] = useState(false);
-// //   const navigate = useNavigate();
-
-// //   const fileUrl = useMemo(() => {
-// //     // return `https://automation-digital-sign-flow.onrender.com/uploads/${filename}`;
-// // return `https://automation-project-server.onrender.com/uploads/${filename}`;
-
-// // }, [filename]);
-
-// //   if (!filename) {
-// //     return <p>שם הקובץ לא זמין</p>;
-// //   }
-
-// //   const handleSigned = async (blob: Blob) => {
-// //     try {
-// //       const formData = new FormData();
-// //       formData.append('signed', blob, 'signature.png');
-// //       formData.append('originalFilename', filename);
-
-// //       // const response = await fetch(`http://localhost:3001/signed/${filename}`, {
-// // const response = await fetch(`https://automation-project-server.onrender.com/signed/${filename}`, {
-
-// //         method: 'POST',
-// //         body: formData,
-// //       });
-
-// //       const contentType = response.headers.get("content-type");
-// //       const isJson = contentType?.includes("application/json");
-
-// //       const responseData = isJson
-// //         ? await response.json()
-// //         : await response.text();
-
-// //       if (!response.ok) {
-// //         console.warn("שגיאת fetch - לא סטטוס 200");
-// //         alert('שגיאה בשליחת הקובץ החתום:\n' + JSON.stringify(responseData, null, 2));
-// //         return;
-// //       }
-
-// //       setDone(true);
-// //     } catch (err) {
-// //       console.error("שגיאה כללית ב-fetch:", err);
-// //       alert("שגיאה בשליחת הקובץ:\n" + (err as Error).message);
-// //     }
-// //   };
-
-// //   if (done) return <p>הקובץ נחתם ונשלח למייל בהצלחה!</p>;
-// // const handleUploadSuccess = (filename: string) => {
-// //     navigate(`/sign/${encodeURIComponent(filename)}`);
-// //   };
-// //   return (
-// //     <button onClick={() => handleUploadSuccess('example.pdf')}>
-// //       חתימה
-// //     </button>
-// //   );
-// // }
-
-// // export default SignPage;
-
-
-
-// import React, { useState, useMemo, useEffect } from 'react';
-// import { useParams } from 'react-router-dom';
+// import React, { useState, useMemo } from 'react';
+// import { useNavigate, useParams } from 'react-router-dom';
 // import SignDocument from '../SignaturePad/SignaturePad';
 
 // function SignPage() {
 //   const { filename } = useParams();
 //   const [done, setDone] = useState(false);
+//   const navigate = useNavigate();
 
 //   const fileUrl = useMemo(() => {
-//     return `https://automation-project-server.onrender.com/uploads/${filename}`;
-//   }, [filename]);
+//     // return `https://automation-digital-sign-flow.onrender.com/uploads/${filename}`;
+// return `https://automation-project-server.onrender.com/uploads/${filename}`;
 
-//   useEffect(() => {
-//     if (filename) {
-//       // פותח את ה-URL בכרטיסייה חדשה
-//       window.open(fileUrl, '_blank');
-//     }
-//   }, [filename, fileUrl]);
+// }, [filename]);
 
 //   if (!filename) {
 //     return <p>שם הקובץ לא זמין</p>;
@@ -160,7 +89,9 @@
 //       formData.append('signed', blob, 'signature.png');
 //       formData.append('originalFilename', filename);
 
-//       const response = await fetch(`https://automation-project-server.onrender.com/signed/${filename}`, {
+//       // const response = await fetch(`http://localhost:3001/signed/${filename}`, {
+// const response = await fetch(`https://automation-project-server.onrender.com/signed/${filename}`, {
+
 //         method: 'POST',
 //         body: formData,
 //       });
@@ -186,20 +117,23 @@
 //   };
 
 //   if (done) return <p>הקובץ נחתם ונשלח למייל בהצלחה!</p>;
-
+// const handleUploadSuccess = (filename: string) => {
+//     navigate(`/sign/${encodeURIComponent(filename)}`);
+//   };
 //   return (
-//     <div>
-//       <h2>חתימה על המסמך</h2>
-//       <SignDocument fileUrl={fileUrl} onSigned={handleSigned} />
-//     </div>
+//     <button onClick={() => handleUploadSuccess('example.pdf')}>
+//       חתימה
+//     </button>
 //   );
 // }
 
 // export default SignPage;
-// SignPage.tsx
-import React, { useState, useMemo } from 'react';
+
+
+
+import React, { useState, useMemo, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import SignOverlay from '../SignaturePad/SignaturePad';
+import SignDocument from '../SignaturePad/SignaturePad';
 
 function SignPage() {
   const { filename } = useParams();
@@ -208,6 +142,13 @@ function SignPage() {
   const fileUrl = useMemo(() => {
     return `https://automation-project-server.onrender.com/uploads/${filename}`;
   }, [filename]);
+
+  useEffect(() => {
+    if (filename) {
+      // פותח את ה-URL בכרטיסייה חדשה
+      window.open(fileUrl, '_blank');
+    }
+  }, [filename, fileUrl]);
 
   if (!filename) {
     return <p>שם הקובץ לא זמין</p>;
@@ -232,12 +173,14 @@ function SignPage() {
         : await response.text();
 
       if (!response.ok) {
+        console.warn("שגיאת fetch - לא סטטוס 200");
         alert('שגיאה בשליחת הקובץ החתום:\n' + JSON.stringify(responseData, null, 2));
         return;
       }
 
       setDone(true);
     } catch (err) {
+      console.error("שגיאה כללית ב-fetch:", err);
       alert("שגיאה בשליחת הקובץ:\n" + (err as Error).message);
     }
   };
@@ -247,9 +190,67 @@ function SignPage() {
   return (
     <div>
       <h2>חתימה על המסמך</h2>
-      <SignOverlay fileUrl={fileUrl} onSigned={handleSigned} />
+      <SignDocument fileUrl={fileUrl} onSigned={handleSigned} />
     </div>
   );
 }
 
 export default SignPage;
+
+// // SignPage.tsx
+// import React, { useState, useMemo } from 'react';
+// import { useParams } from 'react-router-dom';
+// import SignOverlay from '../SignaturePad/SignaturePad';
+
+// function SignPage() {
+//   const { filename } = useParams();
+//   const [done, setDone] = useState(false);
+
+//   const fileUrl = useMemo(() => {
+//     return `https://automation-project-server.onrender.com/uploads/${filename}`;
+//   }, [filename]);
+
+//   if (!filename) {
+//     return <p>שם הקובץ לא זמין</p>;
+//   }
+
+//   const handleSigned = async (blob: Blob) => {
+//     try {
+//       const formData = new FormData();
+//       formData.append('signed', blob, 'signature.png');
+//       formData.append('originalFilename', filename);
+
+//       const response = await fetch(`https://automation-project-server.onrender.com/signed/${filename}`, {
+//         method: 'POST',
+//         body: formData,
+//       });
+
+//       const contentType = response.headers.get("content-type");
+//       const isJson = contentType?.includes("application/json");
+
+//       const responseData = isJson
+//         ? await response.json()
+//         : await response.text();
+
+//       if (!response.ok) {
+//         alert('שגיאה בשליחת הקובץ החתום:\n' + JSON.stringify(responseData, null, 2));
+//         return;
+//       }
+
+//       setDone(true);
+//     } catch (err) {
+//       alert("שגיאה בשליחת הקובץ:\n" + (err as Error).message);
+//     }
+//   };
+
+//   if (done) return <p>הקובץ נחתם ונשלח למייל בהצלחה!</p>;
+
+//   return (
+//     <div>
+//       <h2>חתימה על המסמך</h2>
+//       <SignOverlay fileUrl={fileUrl} onSigned={handleSigned} />
+//     </div>
+//   );
+// }
+
+// export default SignPage;
