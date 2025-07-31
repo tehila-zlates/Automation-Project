@@ -2,7 +2,7 @@ import React, { useRef, useEffect, useState } from 'react';
 import * as pdfjs from 'pdfjs-dist/build/pdf';
 
 // pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js';
-pdfjs.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js';
+pdfjs.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs';
 
 
 function SignDocument({ fileUrl, onSigned }: { fileUrl: string, onSigned: (blob: Blob) => void }) {
