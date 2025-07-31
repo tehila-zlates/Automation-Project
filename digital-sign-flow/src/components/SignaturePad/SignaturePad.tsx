@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useState } from 'react';
-import * as pdfjsLib from 'pdfjs-dist/build/pdf';
+// import * as pdfjsLib from 'pdfjs-dist/build/pdf';
 
-pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js';
+// pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js';
 import { pdfjs } from 'react-pdf'
 
 pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
@@ -30,7 +30,7 @@ function SignDocument({ fileUrl, onSigned }: { fileUrl: string, onSigned: (blob:
       try {
     console.log("222");
 
-        const loadingTask = pdfjsLib.getDocument(fileUrl);
+        const loadingTask = pdfjs.getDocument(fileUrl);
     console.log("111");
 
         const pdf = await loadingTask.promise;
