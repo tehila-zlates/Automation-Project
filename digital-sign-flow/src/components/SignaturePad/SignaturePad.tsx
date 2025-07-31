@@ -1,10 +1,9 @@
 import React, { useRef, useEffect, useState } from 'react';
-// import * as pdfjsLib from 'pdfjs-dist/build/pdf';
+import * as pdfjs from 'pdfjs-dist/build/pdf';
 
 // pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js';
-import { pdfjs } from 'react-pdf'
+pdfjs.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js';
 
-pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
 function SignDocument({ fileUrl, onSigned }: { fileUrl: string, onSigned: (blob: Blob) => void }) {
 
