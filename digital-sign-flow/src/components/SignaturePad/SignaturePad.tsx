@@ -126,15 +126,16 @@ function SignDocument({ fileUrl, onSigned }: { fileUrl: string, onSigned: (blob:
       <button className="btn btn-success mt-2" onClick={handleSave}>
         סיום חתימה ושליחה
       </button> */}
-      <div style={{ position: 'relative' }}>
+      <div style={{ position: 'relative', height: '100vh' }}>
   <iframe
     src={fileUrl}
     style={{
       width: '100%',
-      height: '700px',
+      height: '100%',
       border: 'none',
     }}
   />
+
   <canvas
     ref={canvasRef}
     onMouseDown={startDrawing}
@@ -145,17 +146,17 @@ function SignDocument({ fileUrl, onSigned }: { fileUrl: string, onSigned: (blob:
       position: 'absolute',
       top: 0,
       left: 0,
-      pointerEvents: 'auto',
-      border: 'none',
       width: '100%',
-      height: '700px',
+      height: '100%',
       zIndex: 10,
+      backgroundColor: 'transparent',
+      pointerEvents: 'auto',
     }}
   />
 </div>
-<button className="btn btn-success mt-2" onClick={handleSave}>
-  סיום חתימה ושליחה
-</button>
+
+<button onClick={handleSave}>סיום חתימה ושליחה</button>
+
     </div>
   );
 }
