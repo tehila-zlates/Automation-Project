@@ -31,55 +31,89 @@ const transporter = nodemailer.createTransport({
   }
 });
 
+// app.post('/upload', uploadMemory.single('file'), async (req, res) => {
+//   try {
+//     const { file } = req;
+//     const { email } = req.body;
+//     if (!file || !email) return res.status(400).send('Missing file or email');
+
+//     let finalFilename = Date.now() + '.pdf';
+//     const uploadPath = path.join(__dirname, 'uploads', finalFilename);
+
+//     if (file.mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+//       const result = await mammoth.convertToHtml({ buffer: file.buffer });
+//       const text = result.value.replace(/<[^>]+>/g, '');
+
+//       const pdfDoc = await PDFDocument.create();
+//       pdfDoc.registerFontkit(fontkit);
+//       const font = await pdfDoc.embedFont(fs.readFileSync(path.join(__dirname, 'fonts', 'Alef-Regular.ttf')));
+//       const page = pdfDoc.addPage([595.28, 841.89]);
+
+//       page.drawText(text, {
+//         x: 50, y: page.getHeight() - 50,
+//         size: 14, font, maxWidth: 495, lineHeight: 20,
+//       });
+
+//       fs.writeFileSync(uploadPath, await pdfDoc.save());
+//     } else if (file.mimetype === 'application/pdf') {
+//       finalFilename = Date.now() + '-' + file.originalname;
+//       fs.writeFileSync(path.join(__dirname, 'uploads', finalFilename), file.buffer);
+//     } else {
+//       return res.status(400).send('Unsupported file type');
+//     }
+
+//     emailMap.set(finalFilename, email);
+
+//     const baseUrl = `http://localhost:3001` || 'https://automation-project-server.onrender.com';
+//     const clientUrl = `http://localhost:3000` || 'https://automation-digital-sign-flow.onrender.com';
+
+//     res.json({
+//       fileUrl: `https://automation-project-server.onrender.com/uploads/${finalFilename}`,
+//       signPageUrl: `https://automation-digital-sign-flow.onrender.com/sign/${finalFilename}`,
+//       filename: finalFilename
+//     });
+
+//     // res.json({
+//     //   fileUrl: `http://localhost:3001/uploads/${finalFilename}`,
+//     //   signPageUrl: `http://localhost:3000/sign/${finalFilename}`
+//     // });
+//   } catch (err) {
+//     console.error("Upload error:", err);
+//     res.status(500).send('Internal Server Error');
+//   }
+// });
+const CloudConvert = require('cloudconvert');
+const cloudConvert = new CloudConvert('eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiOWYzNjA2MjA3MGUxNDQyYzhkYTY2Nzg2Y2UzMzJjNTMxZGNkMWYwNjkwMGJhYmU0ZjU1ZmFlZWMzZWI4ZTg0YjBiYTM0YzA3ODU1MmE1MWYiLCJpYXQiOjE3NTQwMzQwODkuOTgxOTcyLCJuYmYiOjE3NTQwMzQwODkuOTgxOTczLCJleHAiOjQ5MDk3MDc2ODkuOTc0NjY5LCJzdWIiOiI3MjU2NDgyMCIsInNjb3BlcyI6WyJ0YXNrLnJlYWQiLCJ0YXNrLndyaXRlIl19.kSg_xWZY4lfIrwvw3JVKhpWPEVpmYw8dlAEPuZPs2exQhvZqxVgboLY2GW7GBZPiA2jP5YJpw6Wcv8hFhGIZWXT0bs8ldgVos1TmxYZ3xi0-TDZw0n7ZuICOPu8qY8cwpf3jz68mWua5W0VufxZRfYU53ZJ87Hh8xl1bR9gVULUhSdbvxIG1F4iWQ78UAItG5QgPO5SOXkICt6ooDZrl3ftTn0qhpf3c-o1ij_kat2Ih3P_LgrW8XnrWKUt4OUJUMaPJ7VmuiWgNfZ_SINqN4Vdl0rtancNS5wCkNbgTlpCa5pLoILq0Vc1AIcao5ww6lTJnl4AKW8HMGRkKd1j-kwsOXB-dpLfBizPzijUSO_HJnSE-PN4QC8KnUoIOYSS9w60IqE178XMezNAybPgpkqnNffAAM8_RDjUfmV9zlPJGx1ilrQlA5mYy42HFOB2MSMKTg1YwHnF6ZqTMtGbIAsJKejbCNWE2elCN_47fg2e_VabY39xLt272cegd25iLpTa8gBJXUy9L4gpVo2bu-50ZX7cY-hnAhirubPqJJzO8uqkHo_i4hoiSu2NJNXsby8-yZOx5YlvaFPxXvIaqO9F6JElmvoElJa7_O6dDiPn_KVPnHCHH_-Nf6uMifTqWZQRQ9evCZBFObGPGkTBrX4ItDNuuUwyu6uSzqe0DZlY');
+
 app.post('/upload', uploadMemory.single('file'), async (req, res) => {
   try {
     const { file } = req;
-    const { email } = req.body;
-    if (!file || !email) return res.status(400).send('Missing file or email');
+    if (!file) return res.status(400).send('Missing file');
 
-    let finalFilename = Date.now() + '.pdf';
-    const uploadPath = path.join(__dirname, 'uploads', finalFilename);
-
-    if (file.mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
-      const result = await mammoth.convertToHtml({ buffer: file.buffer });
-      const text = result.value.replace(/<[^>]+>/g, '');
-
-      const pdfDoc = await PDFDocument.create();
-      pdfDoc.registerFontkit(fontkit);
-      const font = await pdfDoc.embedFont(fs.readFileSync(path.join(__dirname, 'fonts', 'Alef-Regular.ttf')));
-      const page = pdfDoc.addPage([595.28, 841.89]);
-
-      page.drawText(text, {
-        x: 50, y: page.getHeight() - 50,
-        size: 14, font, maxWidth: 495, lineHeight: 20,
-      });
-
-      fs.writeFileSync(uploadPath, await pdfDoc.save());
-    } else if (file.mimetype === 'application/pdf') {
-      finalFilename = Date.now() + '-' + file.originalname;
-      fs.writeFileSync(path.join(__dirname, 'uploads', finalFilename), file.buffer);
-    } else {
-      return res.status(400).send('Unsupported file type');
-    }
-
-    emailMap.set(finalFilename, email);
-
-    const baseUrl = `http://localhost:3001` || 'https://automation-project-server.onrender.com';
-    const clientUrl = `http://localhost:3000` || 'https://automation-digital-sign-flow.onrender.com';
-
-    res.json({
-      fileUrl: `https://automation-project-server.onrender.com/uploads/${finalFilename}`,
-      signPageUrl: `https://automation-digital-sign-flow.onrender.com/sign/${finalFilename}`,
-      filename: finalFilename
+    const job = await cloudConvert.jobs.create({
+      tasks: {
+        'import-my-file': { operation: 'import/upload' },
+        'convert-my-file': {
+          operation: 'convert',
+          input: 'import-my-file',
+          input_format: 'docx',
+          output_format: 'pdf',
+        },
+        'export-my-file': { operation: 'export/url', input: 'convert-my-file' }
+      }
     });
 
-    // res.json({
-    //   fileUrl: `http://localhost:3001/uploads/${finalFilename}`,
-    //   signPageUrl: `http://localhost:3000/sign/${finalFilename}`
-    // });
+    const uploadTask = job.tasks.find(t => t.name === 'import-my-file');
+    await cloudConvert.tasks.upload(uploadTask, file.buffer, file.originalname);
+
+    const completedJob = await cloudConvert.jobs.wait(job.id);
+    const exportTask = completedJob.tasks.find(t => t.operation === 'export/url' && t.status === 'finished');
+    const fileUrl = exportTask.result.files[0].url;
+
+    res.json({ pdfUrl: fileUrl });
   } catch (err) {
-    console.error("Upload error:", err);
-    res.status(500).send('Internal Server Error');
+    console.error(err);
+    res.status(500).send('Conversion failed');
   }
 });
 
