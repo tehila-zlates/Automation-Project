@@ -125,6 +125,7 @@ const convertApi = new ConvertApi('u3UoUeZvPrOn3IkI0Za9IKakANXRi64j'); // הכנ
 //     res.status(500).send('Internal Server Error');
 //   }
 // });
+const axios = require('axios'); // אם לא מותקן, תתקין עם npm install axios
 
 app.post('/upload', uploadMemory.single('file'), async (req, res) => {
   try {
@@ -132,53 +133,37 @@ app.post('/upload', uploadMemory.single('file'), async (req, res) => {
     const { email } = req.body;
     if (!file || !email) return res.status(400).send('Missing file or email');
 
-    // שמירת קובץ ה-Word במקור (אם קובץ Word)
-    let originalFilename = '';
-    if (file.mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
-      originalFilename = Date.now() + '-' + file.originalname;
-      const originalPath = path.join(__dirname, 'uploads', originalFilename);
-      fs.writeFileSync(originalPath, file.buffer);
+    let finalFilename = Date.now() + '.pdf';
+    const uploadPath = path.join(__dirname, 'uploads', finalFilename);
 
+    if (file.mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
       // המרת DOCX ל-PDF באמצעות ConvertAPI
       const result = await convertApi.convert('pdf', {
-        File: originalPath,
+        File: file.buffer,
         StoreFile: true,
       });
 
-      // הורדת קובץ ה-PDF שהומר
       const pdfFile = result.response.Files[0];
-      const pdfBuffer = await convertApi.download(pdfFile.Url);
+      const pdfUrl = pdfFile.Url;
 
-      // שמירת קובץ ה-PDF
-      const finalFilename = Date.now() + '.pdf';
-      const uploadPath = path.join(__dirname, 'uploads', finalFilename);
-      fs.writeFileSync(uploadPath, pdfBuffer);
-
-      emailMap.set(finalFilename, email);
-
-      return res.json({
-        fileUrl: `https://automation-project-server.onrender.com/uploads/${finalFilename}`,
-        signPageUrl: `https://automation-digital-sign-flow.onrender.com/sign/${finalFilename}`,
-        filename: finalFilename,
-        originalFile: originalFilename,
-      });
+      // הורדת הקובץ מה-URL ושמירתו במערכת הקבצים
+      const response = await axios.get(pdfUrl, { responseType: 'arraybuffer' });
+      fs.writeFileSync(uploadPath, response.data);
 
     } else if (file.mimetype === 'application/pdf') {
-      const finalFilename = Date.now() + '-' + file.originalname;
-      const uploadPath = path.join(__dirname, 'uploads', finalFilename);
-      fs.writeFileSync(uploadPath, file.buffer);
-
-      emailMap.set(finalFilename, email);
-
-      return res.json({
-        fileUrl: `https://automation-project-server.onrender.com/uploads/${finalFilename}`,
-        signPageUrl: `https://automation-digital-sign-flow.onrender.com/sign/${finalFilename}`,
-        filename: finalFilename,
-      });
+      finalFilename = Date.now() + '-' + file.originalname;
+      fs.writeFileSync(path.join(__dirname, 'uploads', finalFilename), file.buffer);
     } else {
       return res.status(400).send('Unsupported file type');
     }
 
+    emailMap.set(finalFilename, email);
+
+    res.json({
+      fileUrl: `https://automation-project-server.onrender.com/uploads/${finalFilename}`,
+      signPageUrl: `https://automation-digital-sign-flow.onrender.com/sign/${finalFilename}`,
+      filename: finalFilename
+    });
   } catch (err) {
     console.error("Upload error:", err);
     res.status(500).send('Internal Server Error');
