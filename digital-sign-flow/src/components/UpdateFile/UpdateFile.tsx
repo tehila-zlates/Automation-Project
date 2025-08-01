@@ -41,7 +41,7 @@ function UploadForm() {
       }
     } catch (err) {
       console.error(err);
-      alert('Upload failed');
+      alert('Upload faממממiled');
     }
   };
   const toSignPage = () => {
