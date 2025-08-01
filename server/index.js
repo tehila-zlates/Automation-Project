@@ -32,59 +32,6 @@ const transporter = nodemailer.createTransport({
   }
 });
 
-// app.post('/upload', uploadMemory.single('file'), async (req, res) => {
-//   try {
-//     const { file } = req;
-//     const { email } = req.body;
-//     if (!file || !email) return res.status(400).send('Missing file or email');
-
-//     let finalFilename = Date.now() + '.pdf';
-//     const uploadPath = path.join(__dirname, 'uploads', finalFilename);
-
-//     if (file.mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
-//       const result = await mammoth.convertToHtml({ buffer: file.buffer });
-//       const text = result.value.replace(/<[^>]+>/g, '');
-
-//       const pdfDoc = await PDFDocument.create();
-//       pdfDoc.registerFontkit(fontkit);
-//       const font = await pdfDoc.embedFont(fs.readFileSync(path.join(__dirname, 'fonts', 'Alef-Regular.ttf')));
-//       const page = pdfDoc.addPage([595.28, 841.89]);
-
-//       page.drawText(text, {
-//         x: 50, y: page.getHeight() - 50,
-//         size: 14, font, maxWidth: 495, lineHeight: 20,
-//       });
-
-//       fs.writeFileSync(uploadPath, await pdfDoc.save());
-//     } else if (file.mimetype === 'application/pdf') {
-//       finalFilename = Date.now() + '-' + file.originalname;
-//       fs.writeFileSync(path.join(__dirname, 'uploads', finalFilename), file.buffer);
-//     } else {
-//       return res.status(400).send('Unsupported file type');
-//     }
-
-//     emailMap.set(finalFilename, email);
-
-//     const baseUrl = `http://localhost:3001` || 'https://automation-project-server.onrender.com';
-//     const clientUrl = `http://localhost:3000` || 'https://automation-digital-sign-flow.onrender.com';
-
-//     res.json({
-//       fileUrl: `https://automation-project-server.onrender.com/uploads/${finalFilename}`,
-//       signPageUrl: `https://automation-digital-sign-flow.onrender.com/sign/${finalFilename}`,
-//       filename: finalFilename
-//     });
-
-//     // res.json({
-//     //   fileUrl: `http://localhost:3001/uploads/${finalFilename}`,
-//     //   signPageUrl: `http://localhost:3000/sign/${finalFilename}`
-//     // });
-//   } catch (err) {
-//     console.error("Upload error:", err);
-//     res.status(500).send('Internal Server Error');
-//   }
-// });
-const ConvertApi = require('convertapi');
-const convertApi = new ConvertApi('u3UoUeZvPrOn3IkI0Za9IKakANXRi64j'); // הכנס כאן את המפתח שלך
 app.post('/upload', uploadMemory.single('file'), async (req, res) => {
   try {
     const { file } = req;
@@ -95,36 +42,42 @@ app.post('/upload', uploadMemory.single('file'), async (req, res) => {
     const uploadPath = path.join(__dirname, 'uploads', finalFilename);
 
     if (file.mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
-      // המרת DOCX ל-PDF באמצעות ConvertAPI
-      const result = await convertApi.convert('pdf', {
-        File: file.buffer,
-        StoreFile: true,
+      const result = await mammoth.convertToHtml({ buffer: file.buffer });
+      const text = result.value.replace(/<[^>]+>/g, '');
+
+      const pdfDoc = await PDFDocument.create();
+      pdfDoc.registerFontkit(fontkit);
+      const font = await pdfDoc.embedFont(fs.readFileSync(path.join(__dirname, 'fonts', 'Alef-Regular.ttf')));
+      const page = pdfDoc.addPage([595.28, 841.89]);
+
+      page.drawText(text, {
+        x: 50, y: page.getHeight() - 50,
+        size: 14, font, maxWidth: 495, lineHeight: 20,
       });
 
-      const pdfUrl = result.file.url; // URL של הקובץ שהומר
-
-      // הורדת הקובץ מה-URL
-      const response = await axios.get(pdfUrl, { responseType: 'arraybuffer' });
-      const pdfBuffer = Buffer.from(response.data, 'binary');
-
-      // שמירת הקובץ לתיקייה המקומית
-      fs.writeFileSync(uploadPath, pdfBuffer);
-
+      fs.writeFileSync(uploadPath, await pdfDoc.save());
     } else if (file.mimetype === 'application/pdf') {
       finalFilename = Date.now() + '-' + file.originalname;
-      const filePath = path.join(__dirname, 'uploads', finalFilename);
-      fs.writeFileSync(filePath, file.buffer);
+      fs.writeFileSync(path.join(__dirname, 'uploads', finalFilename), file.buffer);
     } else {
       return res.status(400).send('Unsupported file type');
     }
 
     emailMap.set(finalFilename, email);
 
+    const baseUrl = `http://localhost:3001` || 'https://automation-project-server.onrender.com';
+    const clientUrl = `http://localhost:3000` || 'https://automation-digital-sign-flow.onrender.com';
+
     res.json({
       fileUrl: `https://automation-project-server.onrender.com/uploads/${finalFilename}`,
       signPageUrl: `https://automation-digital-sign-flow.onrender.com/sign/${finalFilename}`,
       filename: finalFilename
     });
+
+    // res.json({
+    //   fileUrl: `http://localhost:3001/uploads/${finalFilename}`,
+    //   signPageUrl: `http://localhost:3000/sign/${finalFilename}`
+    // });
   } catch (err) {
     console.error("Upload error:", err);
     res.status(500).send('Internal Server Error');
