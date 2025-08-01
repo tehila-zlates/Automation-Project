@@ -84,8 +84,6 @@ const transporter = nodemailer.createTransport({
 // });
 const ConvertApi = require('convertapi');
 const convertApi = new ConvertApi('u3UoUeZvPrOn3IkI0Za9IKakANXRi64j'); // הכנס כאן את המפתח שלך
-const fs = require('fs');
-const path = require('path');
 
 app.post('/upload', uploadMemory.single('file'), async (req, res) => {
   try {
