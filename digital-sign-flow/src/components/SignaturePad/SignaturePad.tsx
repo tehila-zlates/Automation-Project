@@ -11,7 +11,7 @@ pdfjs.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs';
 //   const isRenderingRef = useRef(false);
 
 //   useEffect(() => {
-    
+
 //     const loadPDF = async () => {
 //       if (isRenderingRef.current) {
 //         return;
@@ -164,6 +164,16 @@ pdfjs.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs';
 function SignDocument({ fileUrl, onSigned }: { fileUrl: string, onSigned: (blob: Blob) => void }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isDrawing, setIsDrawing] = useState(false);
+
+  useEffect(() => {
+    const iframe = document.querySelector('iframe');
+    const canvas = canvasRef.current;
+    if (iframe && canvas) {
+      const rect = iframe.getBoundingClientRect();
+      canvas.width = rect.width;
+      canvas.height = rect.height;
+    }
+  }, []);
 
   const startDrawing = (e: any) => {
     setIsDrawing(true);
