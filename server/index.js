@@ -85,47 +85,104 @@ const transporter = nodemailer.createTransport({
 const ConvertApi = require('convertapi');
 const convertApi = new ConvertApi('u3UoUeZvPrOn3IkI0Za9IKakANXRi64j'); // הכנס כאן את המפתח שלך
 
+// app.post('/upload', uploadMemory.single('file'), async (req, res) => {
+//   try {
+//     const { file } = req;
+//     const { email } = req.body;
+//     if (!file || !email) return res.status(400).send('Missing file or email');
+
+//     let finalFilename = Date.now() + '.pdf';
+//     const uploadPath = path.join(__dirname, 'uploads', finalFilename);
+
+//     if (file.mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+//       // המרת DOCX ל-PDF באמצעות ConvertAPI
+//       const result = await convertApi.convert('pdf', {
+//         File: file.buffer,
+//         StoreFile: true,
+//       });
+
+//       // שמירת הקובץ שהומר
+//       const pdfFile = result.response.Files[0];
+//       const pdfBuffer = await convertApi.download(pdfFile.Url);
+
+//       fs.writeFileSync(uploadPath, pdfBuffer);
+//     } else if (file.mimetype === 'application/pdf') {
+//       finalFilename = Date.now() + '-' + file.originalname;
+//       fs.writeFileSync(path.join(__dirname, 'uploads', finalFilename), file.buffer);
+//     } else {
+//       return res.status(400).send('Unsupported file type');
+//     }
+
+//     emailMap.set(finalFilename, email);
+
+//     res.json({
+//       fileUrl: `https://automation-project-server.onrender.com/uploads/${finalFilename}`,
+//       signPageUrl: `https://automation-digital-sign-flow.onrender.com/sign/${finalFilename}`,
+//       filename: finalFilename
+//     });
+//   } catch (err) {
+//     console.error("Upload error:", err);
+//     res.status(500).send('Internal Server Error');
+//   }
+// });
 app.post('/upload', uploadMemory.single('file'), async (req, res) => {
   try {
     const { file } = req;
     const { email } = req.body;
     if (!file || !email) return res.status(400).send('Missing file or email');
 
-    let finalFilename = Date.now() + '.pdf';
-    const uploadPath = path.join(__dirname, 'uploads', finalFilename);
-
+    // שמירת קובץ ה-Word לפני המרה
+    let wordFilename;
     if (file.mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
-      // המרת DOCX ל-PDF באמצעות ConvertAPI
+      wordFilename = Date.now() + '-' + file.originalname;
+      const wordPath = path.join(__dirname, 'uploads', wordFilename);
+      fs.writeFileSync(wordPath, file.buffer);
+
+      // המרת DOCX ל-PDF באמצעות ConvertAPI עם הנתיב של הקובץ השמור
       const result = await convertApi.convert('pdf', {
-        File: file.buffer,
+        File: wordPath,
         StoreFile: true,
       });
 
-      // שמירת הקובץ שהומר
+      // הורדת הקובץ שהומר
       const pdfFile = result.response.Files[0];
       const pdfBuffer = await convertApi.download(pdfFile.Url);
 
+      // שמירת ה-PDF
+      const finalFilename = Date.now() + '.pdf';
+      const uploadPath = path.join(__dirname, 'uploads', finalFilename);
       fs.writeFileSync(uploadPath, pdfBuffer);
+
+      // שמירת המייל במפה עם שם קובץ ה-PDF הסופי
+      emailMap.set(finalFilename, email);
+
+      res.json({
+        fileUrl: `https://automation-project-server.onrender.com/uploads/${finalFilename}`,
+        signPageUrl: `https://automation-digital-sign-flow.onrender.com/sign/${finalFilename}`,
+        filename: finalFilename,
+        originalWordFile: wordFilename, // לשמור גם את שם הקובץ המקורי
+      });
     } else if (file.mimetype === 'application/pdf') {
-      finalFilename = Date.now() + '-' + file.originalname;
-      fs.writeFileSync(path.join(__dirname, 'uploads', finalFilename), file.buffer);
+      // שמירת PDF ישירות
+      const finalFilename = Date.now() + '-' + file.originalname;
+      const uploadPath = path.join(__dirname, 'uploads', finalFilename);
+      fs.writeFileSync(uploadPath, file.buffer);
+
+      emailMap.set(finalFilename, email);
+
+      res.json({
+        fileUrl: `https://automation-project-server.onrender.com/uploads/${finalFilename}`,
+        signPageUrl: `https://automation-digital-sign-flow.onrender.com/sign/${finalFilename}`,
+        filename: finalFilename
+      });
     } else {
       return res.status(400).send('Unsupported file type');
     }
-
-    emailMap.set(finalFilename, email);
-
-    res.json({
-      fileUrl: `https://automation-project-server.onrender.com/uploads/${finalFilename}`,
-      signPageUrl: `https://automation-digital-sign-flow.onrender.com/sign/${finalFilename}`,
-      filename: finalFilename
-    });
   } catch (err) {
     console.error("Upload error:", err);
     res.status(500).send('Internal Server Error');
   }
 });
-
 app.post('/signed/:filename', uploadDisk.single('signed'), async (req, res) => {
   try {
     const signedImagePath = path.join(__dirname, 'uploads', req.file.filename);
