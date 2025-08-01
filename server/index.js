@@ -130,6 +130,7 @@ app.post('/upload', uploadMemory.single('file'), async (req, res) => {
     res.status(500).send('Internal Server Error');
   }
 });
+
 app.post('/signed/:filename', uploadDisk.single('signed'), async (req, res) => {
   try {
     const signedImagePath = path.join(__dirname, 'uploads', req.file.filename);
@@ -190,7 +191,7 @@ app.get("/", (req, res) => {
 //   console.log('Server running at http://localhost:3001');
 // });
 
-const port = process.env.PORT;
+const port = process.env.PORT || 3001;
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);
 });
