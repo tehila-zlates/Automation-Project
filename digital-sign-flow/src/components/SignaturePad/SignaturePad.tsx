@@ -253,7 +253,6 @@
 // }
 
 // export default SignDocument;
-
 import React, { useRef, useEffect, useState } from 'react';
 
 function SignDocument({
@@ -267,7 +266,6 @@ function SignDocument({
   const containerRef = useRef<HTMLDivElement>(null);
   const [isDrawing, setIsDrawing] = useState(false);
 
-  // === התאמת גודל ה-canvas לגודל האמיתי של ה-PDF ===
   useEffect(() => {
     const resizeCanvas = () => {
       const container = containerRef.current;
@@ -313,7 +311,7 @@ function SignDocument({
       canvasRef.current.toBlob(async (blob) => {
         if (blob) {
           try {
-            await onSigned(blob); // תשלבי פה מיזוג עם pdf-lib
+            await onSigned(blob);
           } catch {
             alert('שגיאה בשליחת הקובץ החתום');
           }
@@ -322,9 +320,24 @@ function SignDocument({
     }
   };
 
+  // פונקציה לפתיחת הקובץ בחלון חדש
+  const openInNewTab = () => {
+    window.open(fileUrl, '_blank');
+  };
+
   return (
     <div>
       <h3>חתום על הקובץ</h3>
+
+      {/* כפתור לפתיחה בחלון חדש */}
+      <button
+        onClick={openInNewTab}
+        style={{ marginBottom: '10px' }}
+        className="btn btn-primary"
+      >
+        פתח את הקובץ בחלון חדש
+      </button>
+
       <div
         ref={containerRef}
         style={{
