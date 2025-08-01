@@ -7,6 +7,7 @@ const mammoth = require("mammoth");
 const nodemailer = require('nodemailer');
 const { PDFDocument } = require('pdf-lib');
 const fontkit = require('@pdf-lib/fontkit');
+const axios = require('axios'); // צריך להוסיף את זה בהתחלה בקובץ
 
 const app = express();
 app.use(cors());
@@ -84,48 +85,6 @@ const transporter = nodemailer.createTransport({
 // });
 const ConvertApi = require('convertapi');
 const convertApi = new ConvertApi('u3UoUeZvPrOn3IkI0Za9IKakANXRi64j'); // הכנס כאן את המפתח שלך
-
-// app.post('/upload', uploadMemory.single('file'), async (req, res) => {
-//   try {
-//     const { file } = req;
-//     const { email } = req.body;
-//     if (!file || !email) return res.status(400).send('Missing file or email');
-
-//     let finalFilename = Date.now() + '.pdf';
-//     const uploadPath = path.join(__dirname, 'uploads', finalFilename);
-
-//     if (file.mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
-//       // המרת DOCX ל-PDF באמצעות ConvertAPI
-//       const result = await convertApi.convert('pdf', {
-//         File: file.buffer,
-//         StoreFile: true,
-//       });
-
-//       // שמירת הקובץ שהומר
-//       const pdfFile = result.response.Files[0];
-//       const pdfBuffer = await convertApi.download(pdfFile.Url);
-
-//       fs.writeFileSync(uploadPath, pdfBuffer);
-//     } else if (file.mimetype === 'application/pdf') {
-//       finalFilename = Date.now() + '-' + file.originalname;
-//       fs.writeFileSync(path.join(__dirname, 'uploads', finalFilename), file.buffer);
-//     } else {
-//       return res.status(400).send('Unsupported file type');
-//     }
-
-//     emailMap.set(finalFilename, email);
-
-//     res.json({
-//       fileUrl: `https://automation-project-server.onrender.com/uploads/${finalFilename}`,
-//       signPageUrl: `https://automation-digital-sign-flow.onrender.com/sign/${finalFilename}`,
-//       filename: finalFilename
-//     });
-//   } catch (err) {
-//     console.error("Upload error:", err);
-//     res.status(500).send('Internal Server Error');
-//   }
-// });
-
 app.post('/upload', uploadMemory.single('file'), async (req, res) => {
   try {
     const { file } = req;
@@ -148,14 +107,12 @@ app.post('/upload', uploadMemory.single('file'), async (req, res) => {
       const response = await axios.get(pdfUrl, { responseType: 'arraybuffer' });
       const pdfBuffer = Buffer.from(response.data, 'binary');
 
-      // שמירת הקובץ לתיקייה המקומית (uploadPath הוא מחרוזת נתיב)
+      // שמירת הקובץ לתיקייה המקומית
       fs.writeFileSync(uploadPath, pdfBuffer);
 
     } else if (file.mimetype === 'application/pdf') {
       finalFilename = Date.now() + '-' + file.originalname;
       const filePath = path.join(__dirname, 'uploads', finalFilename);
-
-      // כאן הבעיה הייתה כנראה ששלחת buffer במקום path - עכשיו תקין
       fs.writeFileSync(filePath, file.buffer);
     } else {
       return res.status(400).send('Unsupported file type');
