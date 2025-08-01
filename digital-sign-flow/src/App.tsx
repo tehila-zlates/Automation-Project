@@ -7,8 +7,6 @@ import { GlobalWorkerOptions } from 'pdfjs-dist';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import UploadForm from './components/UpdateFile/UpdateFile';
 import SignPage from './components/SignPage/SignPage';
-
-// GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/5.4.54/pdf.worker.min.mjs`;
 import * as pdfjsLib from 'pdfjs-dist';
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs';
@@ -18,7 +16,6 @@ function App() {
       <Routes>
         <Route path="/" element={<UploadForm></UploadForm>} />
         <Route path="/sign/:filename" element={<SignPage></SignPage>} />
-        {/* <Route path="/" element={<SignPage></SignPage>} /> */}
       </Routes>
     </Router>
   );

@@ -1,11 +1,7 @@
 import React, { useRef, useEffect, useState } from 'react';
 import * as pdfjs from 'pdfjs-dist/build/pdf';
 
-// pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js';
 pdfjs.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs';
-
-
-
 
 function SignDocument({ fileUrl, onSigned }: { fileUrl: string, onSigned: (blob: Blob) => void }) {
 
@@ -119,7 +115,7 @@ function SignDocument({ fileUrl, onSigned }: { fileUrl: string, onSigned: (blob:
   return (
     <div>
       <h3>חתום על הקובץ</h3>
-      <canvas
+      {/* <canvas
         ref={canvasRef}
         onMouseDown={startDrawing}
         onMouseMove={draw}
@@ -129,172 +125,39 @@ function SignDocument({ fileUrl, onSigned }: { fileUrl: string, onSigned: (blob:
       />
       <button className="btn btn-success mt-2" onClick={handleSave}>
         סיום חתימה ושליחה
-      </button>
+      </button> */}
+      <div style={{ position: 'relative' }}>
+  <iframe
+    src={fileUrl}
+    style={{
+      width: '100%',
+      height: '700px',
+      border: 'none',
+    }}
+  />
+  <canvas
+    ref={canvasRef}
+    onMouseDown={startDrawing}
+    onMouseMove={draw}
+    onMouseUp={stopDrawing}
+    onMouseLeave={stopDrawing}
+    style={{
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      pointerEvents: 'auto',
+      border: 'none',
+      width: '100%',
+      height: '700px',
+      zIndex: 10,
+    }}
+  />
+</div>
+<button className="btn btn-success mt-2" onClick={handleSave}>
+  סיום חתימה ושליחה
+</button>
     </div>
   );
 }
 
 export default SignDocument;
-
-// import React, { useEffect, useRef, useState } from 'react';
-// import * as pdfjs from 'pdfjs-dist/build/pdf';
-// pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
-
-// function SignOverlay({ fileUrl, onSigned }: { fileUrl: string, onSigned: (blob: Blob) => void }) {
-//   const pdfCanvasRef = useRef<HTMLCanvasElement>(null);
-//   const signCanvasRef = useRef<HTMLCanvasElement>(null);
-//   const [isDrawing, setIsDrawing] = useState(false);
-
-//   useEffect(() => {
-//     const renderPdf = async () => {
-//       const loadingTask = pdfjs.getDocument(fileUrl);
-//       const pdf = await loadingTask.promise;
-//       const page = await pdf.getPage(1);
-//       const viewport = page.getViewport({ scale: 1.5 });
-
-//       const pdfCanvas = pdfCanvasRef.current!;
-//       const context = pdfCanvas.getContext('2d')!;
-//       pdfCanvas.width = viewport.width;
-//       pdfCanvas.height = viewport.height;
-
-//       const signCanvas = signCanvasRef.current!;
-//       signCanvas.width = viewport.width;
-//       signCanvas.height = viewport.height;
-
-//       await page.render({ canvasContext: context, viewport }).promise;
-//     };
-
-//     renderPdf();
-//   }, [fileUrl]);
-
-//   const startDraw = (e: React.MouseEvent) => {
-//     setIsDrawing(true);
-//     const ctx = signCanvasRef.current!.getContext('2d')!;
-//     ctx.beginPath();
-//     ctx.moveTo(e.nativeEvent.offsetX, e.nativeEvent.offsetY);
-//   };
-
-//   const draw = (e: React.MouseEvent) => {
-//     if (!isDrawing) return;
-//     const ctx = signCanvasRef.current!.getContext('2d')!;
-//     ctx.lineTo(e.nativeEvent.offsetX, e.nativeEvent.offsetY);
-//     ctx.strokeStyle = 'blue';
-//     ctx.lineWidth = 2;
-//     ctx.stroke();
-//   };
-
-//   const endDraw = () => setIsDrawing(false);
-
-//   const handleSave = () => {
-//     signCanvasRef.current!.toBlob(blob => {
-//       if (blob) onSigned(blob);
-//     }, 'image/png');
-//   };
-
-//   return (
-//     <div style={{ position: 'relative', display: 'inline-block' }}>
-//       <canvas ref={pdfCanvasRef} style={{ position: 'absolute', top: 0, left: 0, zIndex: 1 }} />
-//       <canvas
-//         ref={signCanvasRef}
-//         style={{ position: 'absolute', top: 0, left: 0, zIndex: 2 }}
-//         onMouseDown={startDraw}
-//         onMouseMove={draw}
-//         onMouseUp={endDraw}
-//         onMouseLeave={endDraw}
-//       />
-//       <button onClick={handleSave} style={{ position: 'relative', zIndex: 3, marginTop: '600px' }}>
-//         סיום חתימה ושליחה
-//       </button>
-//     </div>
-//   );
-// }
-
-// export default SignOverlay;
-
-// // SignaturePad/SignOverlay.tsx
-// import React, { useEffect, useRef, useState } from 'react';
-// import * as pdfjs from 'pdfjs-dist/build/pdf';
-// pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
-
-// function SignOverlay({ fileUrl, onSigned }: { fileUrl: string, onSigned: (blob: Blob) => void }) {
-//   const pdfCanvasRef = useRef<HTMLCanvasElement>(null);
-//   const signCanvasRef = useRef<HTMLCanvasElement>(null);
-//   const [isDrawing, setIsDrawing] = useState(false);
-//   const [isPdfLoaded, setIsPdfLoaded] = useState(false); // <== חדש
-
-//   useEffect(() => {
-//     const renderPdf = async () => {
-//       try {
-//         const loadingTask = pdfjs.getDocument(fileUrl);
-//         const pdf = await loadingTask.promise;
-//         const page = await pdf.getPage(1);
-//         const viewport = page.getViewport({ scale: 1.5 });
-
-//         const pdfCanvas = pdfCanvasRef.current!;
-//         const context = pdfCanvas.getContext('2d')!;
-//         pdfCanvas.width = viewport.width;
-//         pdfCanvas.height = viewport.height;
-
-//         const signCanvas = signCanvasRef.current!;
-//         signCanvas.width = viewport.width;
-//         signCanvas.height = viewport.height;
-
-//         await page.render({ canvasContext: context, viewport }).promise;
-
-//         setIsPdfLoaded(true); // <== רק כשהקובץ נטען
-//       } catch (error) {
-//         console.error('שגיאה בטעינת PDF:', error);
-//       }
-//     };
-
-//     renderPdf();
-//   }, [fileUrl]);
-
-//   const startDraw = (e: React.MouseEvent) => {
-//     setIsDrawing(true);
-//     const ctx = signCanvasRef.current!.getContext('2d')!;
-//     ctx.beginPath();
-//     ctx.moveTo(e.nativeEvent.offsetX, e.nativeEvent.offsetY);
-//   };
-
-//   const draw = (e: React.MouseEvent) => {
-//     if (!isDrawing) return;
-//     const ctx = signCanvasRef.current!.getContext('2d')!;
-//     ctx.lineTo(e.nativeEvent.offsetX, e.nativeEvent.offsetY);
-//     ctx.strokeStyle = 'blue';
-//     ctx.lineWidth = 2;
-//     ctx.stroke();
-//   };
-
-//   const endDraw = () => setIsDrawing(false);
-
-//   const handleSave = () => {
-//     signCanvasRef.current!.toBlob(blob => {
-//       if (blob) onSigned(blob);
-//     }, 'image/png');
-//   };
-
-//   return (
-//     <div style={{ position: 'relative', display: 'inline-block' }}>
-//       <canvas ref={pdfCanvasRef} style={{ position: 'absolute', top: 0, left: 0, zIndex: 1 }} />
-//       <canvas
-//         ref={signCanvasRef}
-//         style={{ position: 'absolute', top: 0, left: 0, zIndex: 2 }}
-//         onMouseDown={startDraw}
-//         onMouseMove={draw}
-//         onMouseUp={endDraw}
-//         onMouseLeave={endDraw}
-//       />
-//       {isPdfLoaded && (
-//         <button
-//           onClick={handleSave}
-//           style={{ position: 'relative', zIndex: 3, marginTop: '600px' }}
-//         >
-//           סיום חתימה ושליחה
-//         </button>
-//       )}
-//     </div>
-//   );
-// }
-
-// export default SignOverlay;
