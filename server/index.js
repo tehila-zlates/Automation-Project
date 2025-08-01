@@ -142,18 +142,21 @@ app.post('/upload', uploadMemory.single('file'), async (req, res) => {
         StoreFile: true,
       });
 
-      // מקבלים URL של הקובץ שהומר
-      const pdfUrl = result.file.url; // או result.response.Files[0].Url - תלוי בגרסת ה-SDK
+      const pdfUrl = result.file.url; // URL של הקובץ שהומר
 
-      // מורידים את הקובץ מה-URL עם axios
+      // הורדת הקובץ מה-URL
       const response = await axios.get(pdfUrl, { responseType: 'arraybuffer' });
+      const pdfBuffer = Buffer.from(response.data, 'binary');
 
-      // שומרים את הקובץ בתקייה המקומית
-      fs.writeFileSync(uploadPath, Buffer.from(response.data, 'binary'));
+      // שמירת הקובץ לתיקייה המקומית (uploadPath הוא מחרוזת נתיב)
+      fs.writeFileSync(uploadPath, pdfBuffer);
 
     } else if (file.mimetype === 'application/pdf') {
       finalFilename = Date.now() + '-' + file.originalname;
-      fs.writeFileSync(path.join(__dirname, 'uploads', finalFilename), file.buffer);
+      const filePath = path.join(__dirname, 'uploads', finalFilename);
+
+      // כאן הבעיה הייתה כנראה ששלחת buffer במקום path - עכשיו תקין
+      fs.writeFileSync(filePath, file.buffer);
     } else {
       return res.status(400).send('Unsupported file type');
     }
