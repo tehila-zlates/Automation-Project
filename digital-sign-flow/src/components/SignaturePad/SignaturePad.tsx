@@ -161,128 +161,27 @@
 //   );
 // }
 
-// function SignDocument({ fileUrl, onSigned }: { fileUrl: string, onSigned: (blob: Blob) => void }) {
-//   const canvasRef = useRef<HTMLCanvasElement>(null);
-//   const [isDrawing, setIsDrawing] = useState(false);
 
-//   useEffect(() => {
-//     const iframe = document.querySelector('iframe');
-//     const canvas = canvasRef.current;
-//     if (iframe && canvas) {
-//       const rect = iframe.getBoundingClientRect();
-//       canvas.width = rect.width;
-//       canvas.height = rect.height;
-//     }
-//   }, []);
-
-//   const startDrawing = (e: any) => {
-//     setIsDrawing(true);
-//     const ctx = canvasRef.current?.getContext('2d');
-//     if (ctx) {
-//       ctx.beginPath();
-//       ctx.moveTo(e.nativeEvent.offsetX, e.nativeEvent.offsetY);
-//     }
-//   };
-
-//   const draw = (e: any) => {
-//     if (!isDrawing) return;
-//     const ctx = canvasRef.current?.getContext('2d');
-//     if (ctx) {
-//       ctx.lineTo(e.nativeEvent.offsetX, e.nativeEvent.offsetY);
-//       ctx.strokeStyle = 'blue';
-//       ctx.lineWidth = 2;
-//       ctx.stroke();
-//     }
-//   };
-
-//   const stopDrawing = () => {
-//     setIsDrawing(false);
-//   };
-
-//   const handleSave = async () => {
-//     if (canvasRef.current) {
-//       canvasRef.current.toBlob(async (blob) => {
-//         if (blob) {
-//           try {
-//             await onSigned(blob);
-//           } catch (e) {
-//             alert('שגיאה בשליחת הקובץ החתום');
-//           }
-//         }
-//       }, 'image/png');
-//     }
-//   };
-
-//   return (
-//     <div>
-//       <h3>חתום על הקובץ</h3>
-//       <div style={{ position: 'relative', height: '100vh' }}>
-//         <iframe
-//           src={fileUrl}
-//           style={{
-//             width: '100%',
-//             height: '100%',
-//             border: 'none',
-//           }}
-//         />
-
-//         <canvas
-//           ref={canvasRef}
-//           onMouseDown={startDrawing}
-//           onMouseMove={draw}
-//           onMouseUp={stopDrawing}
-//           onMouseLeave={stopDrawing}
-//           style={{
-//             position: 'absolute',
-//             top: 0,
-//             left: 0,
-//             width: '100%',
-//             height: '100%',
-//             zIndex: 10,
-//             backgroundColor: 'transparent',
-//             pointerEvents: 'auto',
-//           }}
-//         />
-//       </div>
-
-//       <button className="btn btn-success mt-2" onClick={handleSave}>
-//         סיום חתימה ושליחה
-//       </button>
-//     </div>
-//   );
-// }
-
-// export default SignDocument;
 import React, { useRef, useEffect, useState } from 'react';
+import * as pdfjs from 'pdfjs-dist/build/pdf';
 
-function SignDocument({
-  fileUrl,
-  onSigned,
-}: {
-  fileUrl: string;
-  onSigned: (blob: Blob) => void;
-}) {
+pdfjs.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs';
+
+function SignDocument({ fileUrl, onSigned }: { fileUrl: string, onSigned: (blob: Blob) => void }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
   const [isDrawing, setIsDrawing] = useState(false);
 
   useEffect(() => {
-    const resizeCanvas = () => {
-      const container = containerRef.current;
-      const canvas = canvasRef.current;
-      if (container && canvas) {
-        const rect = container.getBoundingClientRect();
-        canvas.width = rect.width;
-        canvas.height = rect.height;
-      }
-    };
-
-    resizeCanvas();
-    window.addEventListener('resize', resizeCanvas);
-    return () => window.removeEventListener('resize', resizeCanvas);
+    const iframe = document.querySelector('iframe');
+    const canvas = canvasRef.current;
+    if (iframe && canvas) {
+      const rect = iframe.getBoundingClientRect();
+      canvas.width = rect.width;
+      canvas.height = rect.height;
+    }
   }, []);
 
-  const startDrawing = (e: React.MouseEvent) => {
+  const startDrawing = (e: any) => {
     setIsDrawing(true);
     const ctx = canvasRef.current?.getContext('2d');
     if (ctx) {
@@ -291,7 +190,7 @@ function SignDocument({
     }
   };
 
-  const draw = (e: React.MouseEvent) => {
+  const draw = (e: any) => {
     if (!isDrawing) return;
     const ctx = canvasRef.current?.getContext('2d');
     if (ctx) {
@@ -312,7 +211,7 @@ function SignDocument({
         if (blob) {
           try {
             await onSigned(blob);
-          } catch {
+          } catch (e) {
             alert('שגיאה בשליחת הקובץ החתום');
           }
         }
@@ -320,32 +219,10 @@ function SignDocument({
     }
   };
 
-  // פונקציה לפתיחת הקובץ בחלון חדש
-  const openInNewTab = () => {
-    window.open(fileUrl, '_blank');
-  };
-
   return (
     <div>
       <h3>חתום על הקובץ</h3>
-
-      {/* כפתור לפתיחה בחלון חדש */}
-      <button
-        onClick={openInNewTab}
-        style={{ marginBottom: '10px' }}
-        className="btn btn-primary"
-      >
-        פתח את הקובץ בחלון חדש
-      </button>
-
-      <div
-        ref={containerRef}
-        style={{
-          position: 'relative',
-          width: '100%',
-          height: '90vh',
-        }}
-      >
+      <div style={{ position: 'relative', height: '100vh' }}>
         <iframe
           src={fileUrl}
           style={{
@@ -365,6 +242,8 @@ function SignDocument({
             position: 'absolute',
             top: 0,
             left: 0,
+            width: '100%',
+            height: '100%',
             zIndex: 10,
             backgroundColor: 'transparent',
             pointerEvents: 'auto',
@@ -380,3 +259,132 @@ function SignDocument({
 }
 
 export default SignDocument;
+
+
+// import React, { useRef, useEffect, useState } from 'react';
+
+// function SignDocument({
+//   fileUrl,
+//   onSigned,
+// }: {
+//   fileUrl: string;
+//   onSigned: (blob: Blob) => void;
+// }) {
+//   const canvasRef = useRef<HTMLCanvasElement>(null);
+//   const containerRef = useRef<HTMLDivElement>(null);
+//   const [isDrawing, setIsDrawing] = useState(false);
+
+//   useEffect(() => {
+//     const resizeCanvas = () => {
+//       const container = containerRef.current;
+//       const canvas = canvasRef.current;
+//       if (container && canvas) {
+//         const rect = container.getBoundingClientRect();
+//         canvas.width = rect.width;
+//         canvas.height = rect.height;
+//       }
+//     };
+
+//     resizeCanvas();
+//     window.addEventListener('resize', resizeCanvas);
+//     return () => window.removeEventListener('resize', resizeCanvas);
+//   }, []);
+
+//   const startDrawing = (e: React.MouseEvent) => {
+//     setIsDrawing(true);
+//     const ctx = canvasRef.current?.getContext('2d');
+//     if (ctx) {
+//       ctx.beginPath();
+//       ctx.moveTo(e.nativeEvent.offsetX, e.nativeEvent.offsetY);
+//     }
+//   };
+
+//   const draw = (e: React.MouseEvent) => {
+//     if (!isDrawing) return;
+//     const ctx = canvasRef.current?.getContext('2d');
+//     if (ctx) {
+//       ctx.lineTo(e.nativeEvent.offsetX, e.nativeEvent.offsetY);
+//       ctx.strokeStyle = 'blue';
+//       ctx.lineWidth = 2;
+//       ctx.stroke();
+//     }
+//   };
+
+//   const stopDrawing = () => {
+//     setIsDrawing(false);
+//   };
+
+//   const handleSave = async () => {
+//     if (canvasRef.current) {
+//       canvasRef.current.toBlob(async (blob) => {
+//         if (blob) {
+//           try {
+//             await onSigned(blob);
+//           } catch {
+//             alert('שגיאה בשליחת הקובץ החתום');
+//           }
+//         }
+//       }, 'image/png');
+//     }
+//   };
+
+//   // פונקציה לפתיחת הקובץ בחלון חדש
+//   const openInNewTab = () => {
+//     window.open(fileUrl, '_blank');
+//   };
+
+//   return (
+//     <div>
+//       <h3>חתום על הקובץ</h3>
+
+//       {/* כפתור לפתיחה בחלון חדש */}
+//       <button
+//         onClick={openInNewTab}
+//         style={{ marginBottom: '10px' }}
+//         className="btn btn-primary"
+//       >
+//         פתח את הקובץ בחלון חדש
+//       </button>
+
+//       <div
+//         ref={containerRef}
+//         style={{
+//           position: 'relative',
+//           width: '100%',
+//           height: '90vh',
+//         }}
+//       >
+//         <iframe
+//           src={fileUrl}
+//           style={{
+//             width: '100%',
+//             height: '100%',
+//             border: 'none',
+//           }}
+//         />
+
+//         <canvas
+//           ref={canvasRef}
+//           onMouseDown={startDrawing}
+//           onMouseMove={draw}
+//           onMouseUp={stopDrawing}
+//           onMouseLeave={stopDrawing}
+//           style={{
+//             position: 'absolute',
+//             top: 0,
+//             left: 0,
+//             zIndex: 10,
+//             backgroundColor: 'transparent',
+//             pointerEvents: 'auto',
+//           }}
+//         />
+//       </div>
+
+//       <button className="btn btn-success mt-2" onClick={handleSave}>
+//         סיום חתימה ושליחה
+//       </button>
+//     </div>
+//   );
+// }
+
+// export default SignDocument;
