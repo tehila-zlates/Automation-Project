@@ -125,59 +125,60 @@ const convertApi = new ConvertApi('u3UoUeZvPrOn3IkI0Za9IKakANXRi64j'); // הכנ
 //     res.status(500).send('Internal Server Error');
 //   }
 // });
+
 app.post('/upload', uploadMemory.single('file'), async (req, res) => {
   try {
     const { file } = req;
     const { email } = req.body;
     if (!file || !email) return res.status(400).send('Missing file or email');
 
-    // שמירת קובץ ה-Word לפני המרה
-    let wordFilename;
+    // שמירת קובץ ה-Word במקור (אם קובץ Word)
+    let originalFilename = '';
     if (file.mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
-      wordFilename = Date.now() + '-' + file.originalname;
-      const wordPath = path.join(__dirname, 'uploads', wordFilename);
-      fs.writeFileSync(wordPath, file.buffer);
+      originalFilename = Date.now() + '-' + file.originalname;
+      const originalPath = path.join(__dirname, 'uploads', originalFilename);
+      fs.writeFileSync(originalPath, file.buffer);
 
-      // המרת DOCX ל-PDF באמצעות ConvertAPI עם הנתיב של הקובץ השמור
+      // המרת DOCX ל-PDF באמצעות ConvertAPI
       const result = await convertApi.convert('pdf', {
-        File: wordPath,
+        File: originalPath,
         StoreFile: true,
       });
 
-      // הורדת הקובץ שהומר
+      // הורדת קובץ ה-PDF שהומר
       const pdfFile = result.response.Files[0];
       const pdfBuffer = await convertApi.download(pdfFile.Url);
 
-      // שמירת ה-PDF
+      // שמירת קובץ ה-PDF
       const finalFilename = Date.now() + '.pdf';
       const uploadPath = path.join(__dirname, 'uploads', finalFilename);
       fs.writeFileSync(uploadPath, pdfBuffer);
 
-      // שמירת המייל במפה עם שם קובץ ה-PDF הסופי
       emailMap.set(finalFilename, email);
 
-      res.json({
+      return res.json({
         fileUrl: `https://automation-project-server.onrender.com/uploads/${finalFilename}`,
         signPageUrl: `https://automation-digital-sign-flow.onrender.com/sign/${finalFilename}`,
         filename: finalFilename,
-        originalWordFile: wordFilename, // לשמור גם את שם הקובץ המקורי
+        originalFile: originalFilename,
       });
+
     } else if (file.mimetype === 'application/pdf') {
-      // שמירת PDF ישירות
       const finalFilename = Date.now() + '-' + file.originalname;
       const uploadPath = path.join(__dirname, 'uploads', finalFilename);
       fs.writeFileSync(uploadPath, file.buffer);
 
       emailMap.set(finalFilename, email);
 
-      res.json({
+      return res.json({
         fileUrl: `https://automation-project-server.onrender.com/uploads/${finalFilename}`,
         signPageUrl: `https://automation-digital-sign-flow.onrender.com/sign/${finalFilename}`,
-        filename: finalFilename
+        filename: finalFilename,
       });
     } else {
       return res.status(400).send('Unsupported file type');
     }
+
   } catch (err) {
     console.error("Upload error:", err);
     res.status(500).send('Internal Server Error');
