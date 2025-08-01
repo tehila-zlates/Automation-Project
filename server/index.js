@@ -125,7 +125,6 @@ const convertApi = new ConvertApi('u3UoUeZvPrOn3IkI0Za9IKakANXRi64j'); // הכנ
 //     res.status(500).send('Internal Server Error');
 //   }
 // });
-const axios = require('axios'); // אם לא מותקן, תתקין עם npm install axios
 
 app.post('/upload', uploadMemory.single('file'), async (req, res) => {
   try {
@@ -143,12 +142,14 @@ app.post('/upload', uploadMemory.single('file'), async (req, res) => {
         StoreFile: true,
       });
 
-      const pdfFile = result.response.Files[0];
-      const pdfUrl = pdfFile.Url;
+      // מקבלים URL של הקובץ שהומר
+      const pdfUrl = result.file.url; // או result.response.Files[0].Url - תלוי בגרסת ה-SDK
 
-      // הורדת הקובץ מה-URL ושמירתו במערכת הקבצים
+      // מורידים את הקובץ מה-URL עם axios
       const response = await axios.get(pdfUrl, { responseType: 'arraybuffer' });
-      fs.writeFileSync(uploadPath, response.data);
+
+      // שומרים את הקובץ בתקייה המקומית
+      fs.writeFileSync(uploadPath, Buffer.from(response.data, 'binary'));
 
     } else if (file.mimetype === 'application/pdf') {
       finalFilename = Date.now() + '-' + file.originalname;
