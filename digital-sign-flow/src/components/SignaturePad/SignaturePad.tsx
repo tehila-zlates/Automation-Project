@@ -935,42 +935,82 @@ function SignDocument({ fileUrl, onSigned }: { fileUrl: string; onSigned: (blob:
     setIsSigning((prev) => !prev);
   };
 
-  return (
-    <div style={{ position: 'relative', height: '90vh' }}>
-      <h3>חתום על הקובץ</h3>
+//   return (
+//     <div style={{ position: 'relative', height: '90vh' }}>
+//       <h3>חתום על הקובץ</h3>
 
+//       <button onClick={toggleSigning}>
+//         {isSigning ? 'סיים חתימה' : 'התחל חתימה'}
+//       </button>
+
+//       <iframe
+//         src={fileUrl}
+//         style={{ width: '100%', height: '80vh', border: 'none' }}
+//         title="PDF Viewer"
+//       />
+
+//       <canvas
+//         ref={canvasRef}
+//         width={window.innerWidth}
+//         height={window.innerHeight * 0.8}
+//         onMouseDown={startDrawing}
+//         onMouseMove={draw}
+//         onMouseUp={stopDrawing}
+//         onMouseLeave={stopDrawing}
+//         style={{
+//           position: 'absolute',
+//           top: 0,
+//           left: 0,
+//           pointerEvents: isSigning ? 'auto' : 'none',
+//           cursor: isSigning ? 'crosshair' : 'default',
+//           backgroundColor: 'transparent',
+//           width: '100%',
+//           height: '80vh',
+//           zIndex: 10,
+//         }}
+//       />
+//     </div>
+//   );
+return (
+  <div style={{ position: 'relative', height: '90vh' }}>
+    <h3>חתום על הקובץ</h3>
+
+    {/* כפתור מעל הכל */}
+    <div style={{ position: 'relative', zIndex: 20, pointerEvents: 'auto' }}>
       <button onClick={toggleSigning}>
         {isSigning ? 'סיים חתימה' : 'התחל חתימה'}
       </button>
-
-      <iframe
-        src={fileUrl}
-        style={{ width: '100%', height: '80vh', border: 'none' }}
-        title="PDF Viewer"
-      />
-
-      <canvas
-        ref={canvasRef}
-        width={window.innerWidth}
-        height={window.innerHeight * 0.8}
-        onMouseDown={startDrawing}
-        onMouseMove={draw}
-        onMouseUp={stopDrawing}
-        onMouseLeave={stopDrawing}
-        style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          pointerEvents: isSigning ? 'auto' : 'none',
-          cursor: isSigning ? 'crosshair' : 'default',
-          backgroundColor: 'transparent',
-          width: '100%',
-          height: '80vh',
-          zIndex: 10,
-        }}
-      />
     </div>
-  );
+
+    <iframe
+      src={fileUrl}
+      style={{ width: '100%', height: '80vh', border: 'none' }}
+      title="PDF Viewer"
+    />
+
+    <canvas
+      ref={canvasRef}
+      width={window.innerWidth}
+      height={window.innerHeight * 0.8}
+      onMouseDown={startDrawing}
+      onMouseMove={draw}
+      onMouseUp={stopDrawing}
+      onMouseLeave={stopDrawing}
+      style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        pointerEvents: isSigning ? 'auto' : 'none',
+        cursor: isSigning ? 'crosshair' : 'default',
+        backgroundColor: 'transparent',
+        width: '100%',
+        height: '80vh',
+        zIndex: 10,
+      }}
+    />
+  </div>
+);
+
 }
 
 export default SignDocument;
