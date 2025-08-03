@@ -88,9 +88,12 @@ function UploadForm() {
         // <button className="btn btn-success mt-2" onClick={toSignPage}>
         //   סיום חתימה ושליחה
         // </button>
-        <a href={`/sign/${fileUrl}`} className="text-success" style={{ cursor: 'pointer', textDecoration: 'underline' }}>
-  סיום חתימה ושליחה
-</a>
+                <a href={encodeURI(fileUrl)} target="_blank" rel="noopener noreferrer">
+          לצפייה בקובץ ולחתימה
+        </a>
+     
+
+
 
       )}
     </div>
