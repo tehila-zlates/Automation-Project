@@ -49,7 +49,6 @@ function SignPage() {
 
   return (
     <div>
-      <h2>חתימה על המסמך</h2>
       <SignDocument fileUrl={fileUrl} onSigned={handleSigned} />
     </div>
   );
