@@ -904,29 +904,31 @@ function SignDocument({ fileUrl, onSigned }: { fileUrl: string; onSigned: (blob:
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isDrawing, setIsDrawing] = useState(false);
-  const [iframeRect, setIframeRect] = useState<{width: number, height: number, top: number, left: number} | null>(null);
+  const [iframeRect, setIframeRect] = useState<{ top: number; left: number; width: number; height: number } | null>(null);
 
-  // עדכון מימדי הקנבס בהתאם למימדי ה-iframe
+  // מעדכן את מיקום וגודל הקנבס בהתבסס על מיקום וגודל ה-iframe
   useEffect(() => {
     const updateCanvasSize = () => {
       const iframe = iframeRef.current;
       const canvas = canvasRef.current;
       if (iframe && canvas) {
         const rect = iframe.getBoundingClientRect();
-        setIframeRect({ width: rect.width, height: rect.height, top: rect.top + window.scrollY, left: rect.left + window.scrollX });
 
+        setIframeRect({
+          top: rect.top + window.scrollY,
+          left: rect.left + window.scrollX,
+          width: rect.width,
+          height: rect.height,
+        });
+
+        canvas.style.position = 'absolute';
+        canvas.style.top = (rect.top + window.scrollY) + 'px';
+        canvas.style.left = (rect.left + window.scrollX) + 'px';
         canvas.width = rect.width;
         canvas.height = rect.height;
-
         canvas.style.width = rect.width + 'px';
         canvas.style.height = rect.height + 'px';
-
-        // מיקום מוחלט על המסמך (לפי scroll)
-        canvas.style.position = 'absolute';
-        canvas.style.top = rect.top + window.scrollY + 'px';
-        canvas.style.left = rect.left + window.scrollX + 'px';
-
-        canvas.style.zIndex = '1000'; // מעל ה-iframe אבל מתחת לכפתורים אחרים
+        canvas.style.zIndex = '10';
         canvas.style.backgroundColor = 'transparent';
         canvas.style.pointerEvents = 'auto';
         canvas.style.cursor = 'crosshair';
@@ -936,12 +938,14 @@ function SignDocument({ fileUrl, onSigned }: { fileUrl: string; onSigned: (blob:
     updateCanvasSize();
     window.addEventListener('resize', updateCanvasSize);
     window.addEventListener('scroll', updateCanvasSize);
+
     return () => {
       window.removeEventListener('resize', updateCanvasSize);
       window.removeEventListener('scroll', updateCanvasSize);
     };
   }, [fileUrl]);
 
+  // ציור על הקנבס
   const startDrawing = (e: React.MouseEvent<HTMLCanvasElement>) => {
     setIsDrawing(true);
     const ctx = canvasRef.current?.getContext('2d');
@@ -966,6 +970,7 @@ function SignDocument({ fileUrl, onSigned }: { fileUrl: string; onSigned: (blob:
     setIsDrawing(false);
   };
 
+  // שמירת החתימה לתוך ה-PDF
   const handleSave = async () => {
     if (!canvasRef.current || !iframeRect) return;
 
@@ -983,7 +988,7 @@ function SignDocument({ fileUrl, onSigned }: { fileUrl: string; onSigned: (blob:
       const firstPage = pdfDoc.getPages()[0];
       const { width: pageWidth, height: pageHeight } = firstPage.getSize();
 
-      // התאמת המידות של הקנבס למידות ה-PDF
+      // יחס המרה בין מימדי הקנבס למימדי ה-PDF
       const scaleX = pageWidth / iframeRect.width;
       const scaleY = pageHeight / iframeRect.height;
 
@@ -1005,28 +1010,46 @@ function SignDocument({ fileUrl, onSigned }: { fileUrl: string; onSigned: (blob:
   return (
     <>
       <h3>חתום על הקובץ</h3>
-      <div style={{ position: 'relative' }}>
-        <iframe
-          ref={iframeRef}
-          src={fileUrl}
-          title="PDF Viewer"
-          style={{
-            width: '80vw',
-            height: '80vh',
-            border: '1px solid #ccc',
-            display: 'block',
-            margin: 'auto',
-          }}
-        />
 
-        <canvas
-          ref={canvasRef}
-          onMouseDown={startDrawing}
-          onMouseMove={draw}
-          onMouseUp={stopDrawing}
-          onMouseLeave={stopDrawing}
-        />
-      </div>
+      {/* אזור עם z-index גבוה כדי למנוע לחיצה מחוץ למסמך */}
+      <div
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '100vw',
+          height: '100vh',
+          zIndex: 20,
+          pointerEvents: 'auto',
+          backgroundColor: 'transparent',
+        }}
+      />
+
+      {/* iframe למראה PDF עם גלילה */}
+      <iframe
+        ref={iframeRef}
+        src={fileUrl}
+        title="PDF Viewer"
+        style={{
+          width: '80vw',
+          height: '80vh',
+          border: '1px solid #ccc',
+          display: 'block',
+          margin: '40px auto',
+          position: 'relative',
+          zIndex: 5,
+          overflow: 'auto',
+        }}
+      />
+
+      {/* קנבס חתימה מעל ה-iframe בלבד */}
+      <canvas
+        ref={canvasRef}
+        onMouseDown={startDrawing}
+        onMouseMove={draw}
+        onMouseUp={stopDrawing}
+        onMouseLeave={stopDrawing}
+      />
 
       <div style={{ textAlign: 'center', marginTop: 10 }}>
         <button onClick={handleSave} className="btn btn-success">
