@@ -1038,18 +1038,16 @@ function SignDocument({ fileUrl, onSigned }: { fileUrl: string; onSigned: (blob:
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isDrawing, setIsDrawing] = useState(false);
 
+  // הגדרת גודל הקנבס לחתימה
   useEffect(() => {
     const canvas = canvasRef.current;
     if (canvas) {
-      // canvas רוחב וגובה מתאימים לגודל החלון (אפשר לשנות לפי הצורך)
       const width = window.innerWidth;
-      const height = 300; // גובה אזור חתימה קבוע
+      const height = 200; // גובה חתימה קבוע
       canvas.width = width;
       canvas.height = height;
-
       canvas.style.width = `${width}px`;
       canvas.style.height = `${height}px`;
-
       canvas.style.backgroundColor = 'transparent';
       canvas.style.borderTop = '1px solid #ccc';
       canvas.style.cursor = 'crosshair';
@@ -1097,18 +1095,19 @@ function SignDocument({ fileUrl, onSigned }: { fileUrl: string; onSigned: (blob:
       const pngImage = await pdfDoc.embedPng(pngImageBytes);
 
       const pages = pdfDoc.getPages();
-      const firstPage = pages[0];
-      const { width: pageWidth, height: pageHeight } = firstPage.getSize();
+      const lastPage = pages[pages.length - 1];
+      const { width: pageWidth, height: pageHeight } = lastPage.getSize();
 
       const scaleX = pageWidth / canvasRef.current.width;
-      const scaleY = pageHeight / canvasRef.current.height;
+      const scaleY = 200 / canvasRef.current.height; // לפי גובה הקנבס הקבוע
 
-      // ממקמים את החתימה מתחת לעמוד (בגלל גובה אזור החתימה)
-      firstPage.drawImage(pngImage, {
+      // כדי למקם את החתימה מתחת לעמוד האחרון, מוסיפים גובה קנבס מתחת לעמוד
+      // כאן פשוט מניחים שחותמים בחלק התחתון של העמוד האחרון, ניתן לשנות לפי הצורך
+      lastPage.drawImage(pngImage, {
         x: 0,
-        y: -canvasRef.current.height * scaleY,
+        y: 0,
         width: canvasRef.current.width * scaleX,
-        height: canvasRef.current.height * scaleY,
+        height: 200 * scaleY,
       });
 
       const pdfBytes = await pdfDoc.save();
