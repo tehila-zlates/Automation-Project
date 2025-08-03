@@ -640,6 +640,7 @@ function SignDocument({ fileUrl, onSigned }: { fileUrl: string; onSigned: (blob:
     //   await page.render(renderContext).promise;const canvas = pdfCanvasRef.current;
 const context = canvas?.getContext('2d');
 if (!canvas || !context) return;
+console.log("גגגגגגג");
 
 canvas.width = viewport.width;
 canvas.height = viewport.height;
