@@ -905,9 +905,10 @@ function SignDocument({ fileUrl, onSigned }: { fileUrl: string; onSigned: (blob:
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isDrawing, setIsDrawing] = useState(false);
 
-  // אזור חתימה מוגדר בתוך הקנבס (בפיקסלים)
-  const signArea = { x: 50, y: 400, width: 300, height: 150 }; // תתאימי לפי הצורך
+  // אזור חתימה מוגדר בתוך הקנבס (תתאימי לפי הצורך)
+  const signArea = { x: 50, y: 400, width: 300, height: 150 };
 
+  // עדכון גודל הקנבס וציור מסגרת אזור חתימה
   useEffect(() => {
     const resizeCanvasToIframe = () => {
       const iframe = iframeRef.current;
@@ -924,6 +925,17 @@ function SignDocument({ fileUrl, onSigned }: { fileUrl: string; onSigned: (blob:
 
         canvas.style.top = `${iframe.offsetTop}px`;
         canvas.style.left = `${iframe.offsetLeft}px`;
+
+        // צייר מסגרת של אזור חתימה
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          ctx.strokeStyle = 'blue';
+          ctx.lineWidth = 2;
+          ctx.setLineDash([6]);
+          ctx.strokeRect(signArea.x, signArea.y, signArea.width, signArea.height);
+          ctx.setLineDash([]);
+        }
       }
     };
 
@@ -932,6 +944,7 @@ function SignDocument({ fileUrl, onSigned }: { fileUrl: string; onSigned: (blob:
     return () => window.removeEventListener('resize', resizeCanvasToIframe);
   }, []);
 
+  // ציור רק בתוך אזור החתימה
   const startDrawing = (e: React.MouseEvent<HTMLCanvasElement>) => {
     if (!isInSignArea(e.nativeEvent.offsetX, e.nativeEvent.offsetY)) return;
     setIsDrawing(true);
@@ -959,7 +972,7 @@ function SignDocument({ fileUrl, onSigned }: { fileUrl: string; onSigned: (blob:
     setIsDrawing(false);
   };
 
-  // פונקציה שבודקת אם הקואורדינטות בתוך אזור החתימה
+  // בדיקה אם נקודה בתוך אזור החתימה
   const isInSignArea = (x: number, y: number) => {
     return (
       x >= signArea.x &&
@@ -987,13 +1000,12 @@ function SignDocument({ fileUrl, onSigned }: { fileUrl: string; onSigned: (blob:
       const firstPage = pages[0];
       const { width: pageWidth, height: pageHeight } = firstPage.getSize();
 
-      // התאמת גודל ומיקום החתימה לפי אזור החתימה בלבד
       const scaleX = pageWidth / canvasRef.current.width;
       const scaleY = pageHeight / canvasRef.current.height;
 
       firstPage.drawImage(pngImage, {
         x: signArea.x * scaleX,
-        y: pageHeight - (signArea.y + signArea.height) * scaleY, // שימי לב שציר Y ב-PDF שונה מציר Y בקנבס
+        y: pageHeight - (signArea.y + signArea.height) * scaleY,
         width: signArea.width * scaleX,
         height: signArea.height * scaleY,
       });
