@@ -91,16 +91,14 @@ function UploadForm() {
         // <a href={encodeURI(fileUrl)} target="_blank" rel="noopener noreferrer">
         //   לצפייה בקובץ ולחתימה
         // </a>
-        <a
-  href=""
-  onClick={(e) => {
-    e.preventDefault();
-    window.open(`/sign/${encodeURIComponent(fileUrl)}`, '_blank', 'noopener,noreferrer');
-  }}
-  style={{ color: 'blue', textDecoration: 'underline', cursor: 'pointer' }}
+<a
+  href={`/sign/${encodeURIComponent(fileUrl)}`}
+  target="_blank"
+  rel="noopener noreferrer"
 >
   לצפייה בקובץ ולחתימה
 </a>
+
 
 
 
