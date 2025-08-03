@@ -85,25 +85,9 @@ function UploadForm() {
         </button>
       </form>
       {fileUrl && (
-        // <button className="btn btn-success mt-2" onClick={toSignPage}>
-        //   סיום חתימה ושליחה
-        // </button>
-        // <a href={encodeURI(fileUrl)} target="_blank" rel="noopener noreferrer">
-        //   לצפייה בקובץ ולחתימה
-        // </a>
-<a
-  href={`/sign/${encodeURIComponent(fileUrl)}`}
-  target="_blank"
-  rel="noopener noreferrer"
->
-  לצפייה בקובץ ולחתימה
-</a>
-
-
-
-
-
-
+        <button className="btn btn-success mt-2" onClick={toSignPage}>
+          סיום חתימה ושליחה
+        </button>
       )}
     </div>
   );
