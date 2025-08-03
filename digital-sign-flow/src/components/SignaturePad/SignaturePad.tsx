@@ -1162,7 +1162,7 @@ function SignDocument({ fileUrl, onSigned }: { fileUrl: string; onSigned: (blob:
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isDrawing, setIsDrawing] = useState(false);
 
-  // הגדרת גודל הקנבס לחתימה
+  // קבע גודל קנבס חתימה ברוחב מלא, גובה קבוע
   useEffect(() => {
     const canvas = canvasRef.current;
     if (canvas) {
@@ -1176,10 +1176,11 @@ function SignDocument({ fileUrl, onSigned }: { fileUrl: string; onSigned: (blob:
       canvas.style.borderTop = '1px solid #ccc';
       canvas.style.cursor = 'crosshair';
       canvas.style.display = 'block';
-      canvas.style.margin = '0 auto';
+      canvas.style.marginTop = '20px';
     }
   }, [fileUrl]);
 
+  // פונקציות ציור
   const startDrawing = (e: React.MouseEvent<HTMLCanvasElement>) => {
     setIsDrawing(true);
     const ctx = canvasRef.current?.getContext('2d');
@@ -1204,6 +1205,7 @@ function SignDocument({ fileUrl, onSigned }: { fileUrl: string; onSigned: (blob:
     setIsDrawing(false);
   };
 
+  // שמירת החתימה בתוך קובץ PDF חדש שמאחד את המסמך המקורי + עמוד חתימה תחתון
   const handleSave = async () => {
     if (!canvasRef.current) return;
 
@@ -1211,26 +1213,27 @@ function SignDocument({ fileUrl, onSigned }: { fileUrl: string; onSigned: (blob:
       const existingPdfBytes = await fetch(fileUrl).then(res => res.arrayBuffer());
       const pdfDoc = await PDFDocument.load(existingPdfBytes);
 
+      // יצירת עמוד חתימה חדש בגודל רוחב העמוד המקורי וגובה קבוע (200 נקודות)
       const pngDataUrl = canvasRef.current.toDataURL('image/png');
-      const pngImageBytes = Uint8Array.from(
-        atob(pngDataUrl.split(',')[1]),
-        c => c.charCodeAt(0)
-      );
+      const pngImageBytes = Uint8Array.from(atob(pngDataUrl.split(',')[1]), c => c.charCodeAt(0));
       const pngImage = await pdfDoc.embedPng(pngImageBytes);
 
       const pages = pdfDoc.getPages();
-      const lastPage = pages[pages.length - 1];
-      const { width: pageWidth, height: pageHeight } = lastPage.getSize();
+      const firstPage = pages[0];
+      const { width: pageWidth } = firstPage.getSize();
 
-      // כאן נמקם את החתימה מתחת לעמוד האחרון על ידי הוספת עמוד חדש שגובהו גובה הקנבס לחתימה
-      const newPage = pdfDoc.addPage([pageWidth, 200]);
-      newPage.drawImage(pngImage, {
+      const signatureHeight = 200;
+
+      // הוספת עמוד חתימה חדש מתחת לעמודים הקיימים
+      const signaturePage = pdfDoc.addPage([pageWidth, signatureHeight]);
+      signaturePage.drawImage(pngImage, {
         x: 0,
         y: 0,
         width: pageWidth,
-        height: 200,
+        height: signatureHeight,
       });
 
+      // שמירת PDF משולב
       const pdfBytes = await pdfDoc.save();
       const signedBlob = new Blob([pdfBytes], { type: 'application/pdf' });
       onSigned(signedBlob);
@@ -1240,23 +1243,23 @@ function SignDocument({ fileUrl, onSigned }: { fileUrl: string; onSigned: (blob:
   };
 
   return (
-    <div style={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
-      <h3 style={{ margin: '10px' }}>חתום על הקובץ</h3>
+    <div style={{ width: '100%', height: '100vh', overflowY: 'auto', padding: '10px', boxSizing: 'border-box' }}>
+      <h3>חתום על הקובץ</h3>
 
-      <div style={{ flex: 1, overflowY: 'auto' }}>
-        <iframe
-          ref={iframeRef}
-          src={fileUrl}
-          title="PDF Viewer"
-          style={{
-            width: '100vw',
-            height: '100%',
-            border: 'none',
-            display: 'block',
-          }}
-        />
-      </div>
+      {/* iframe של PDF בגודל מלא, לא מוגבל רוחב/גובה */}
+      <iframe
+        ref={iframeRef}
+        src={fileUrl}
+        title="PDF Viewer"
+        style={{
+          width: '100%',
+          height: '80vh',
+          border: 'none',
+          display: 'block',
+        }}
+      />
 
+      {/* קנבס חתימה מתחת ל-PDF */}
       <canvas
         ref={canvasRef}
         onMouseDown={startDrawing}
@@ -1265,7 +1268,7 @@ function SignDocument({ fileUrl, onSigned }: { fileUrl: string; onSigned: (blob:
         onMouseLeave={stopDrawing}
       />
 
-      <div style={{ textAlign: 'center', padding: 10 }}>
+      <div style={{ marginTop: 10, textAlign: 'center' }}>
         <button onClick={handleSave} className="btn btn-success">
           סיום חתימה ושליחה
         </button>
