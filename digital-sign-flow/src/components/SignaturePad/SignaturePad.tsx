@@ -898,6 +898,138 @@
 
 
 
+// import React, { useRef, useEffect, useState } from 'react';
+// import { PDFDocument } from 'pdf-lib';
+
+// function SignDocument({ fileUrl, onSigned }: { fileUrl: string; onSigned: (blob: Blob) => void }) {
+//   const iframeRef = useRef<HTMLIFrameElement>(null);
+//   const canvasRef = useRef<HTMLCanvasElement>(null);
+//   const [isDrawing, setIsDrawing] = useState(false);
+
+//   // הגדרת גודל הקנבס לחתימה מתחת ל-iframe
+//   useEffect(() => {
+//     const canvas = canvasRef.current;
+//     if (canvas) {
+//       // רוחב הקנבס שווה לרוחב ה-iframe או מלא רוחב הווידג׳ט
+//       const width = iframeRef.current?.clientWidth || window.innerWidth * 0.8;
+//       const height = 300; // גובה קבוע לחתימה
+
+//       canvas.width = width;
+//       canvas.height = height;
+
+//       canvas.style.width = `${width}px`;
+//       canvas.style.height = `${height}px`;
+
+//       canvas.style.backgroundColor = 'transparent';
+//       canvas.style.border = '1px solid #ccc';
+//       canvas.style.cursor = 'crosshair';
+//       canvas.style.display = 'block';
+//       canvas.style.margin = '10px auto';
+//       canvas.style.touchAction = 'none'; // למכשירים עם מגע
+//     }
+//   }, [fileUrl]);
+
+//   const startDrawing = (e: React.MouseEvent<HTMLCanvasElement>) => {
+//     setIsDrawing(true);
+//     const ctx = canvasRef.current?.getContext('2d');
+//     if (ctx) {
+//       ctx.beginPath();
+//       ctx.moveTo(e.nativeEvent.offsetX, e.nativeEvent.offsetY);
+//     }
+//   };
+
+//   const draw = (e: React.MouseEvent<HTMLCanvasElement>) => {
+//     if (!isDrawing) return;
+//     const ctx = canvasRef.current?.getContext('2d');
+//     if (ctx) {
+//       ctx.lineTo(e.nativeEvent.offsetX, e.nativeEvent.offsetY);
+//       ctx.strokeStyle = 'blue';
+//       ctx.lineWidth = 2;
+//       ctx.stroke();
+//     }
+//   };
+
+//   const stopDrawing = () => {
+//     setIsDrawing(false);
+//   };
+
+//   const handleSave = async () => {
+//     if (!canvasRef.current) return;
+
+//     try {
+//       const existingPdfBytes = await fetch(fileUrl).then((res) => res.arrayBuffer());
+//       const pdfDoc = await PDFDocument.load(existingPdfBytes);
+
+//       const pngDataUrl = canvasRef.current.toDataURL('image/png');
+//       const pngImageBytes = Uint8Array.from(
+//         atob(pngDataUrl.split(',')[1]),
+//         (c) => c.charCodeAt(0)
+//       );
+//       const pngImage = await pdfDoc.embedPng(pngImageBytes);
+
+//       const pages = pdfDoc.getPages();
+//       const firstPage = pages[0];
+//       const { width: pageWidth, height: pageHeight } = firstPage.getSize();
+
+//       // יחס המרה בין מימדי הקנבס לגודל ה-PDF
+//       // כאן מניחים שרוחב הקנבס תואם לרוחב ה-PDF (או אפשר לשנות לפי הצורך)
+//       const scaleX = pageWidth / canvasRef.current.width;
+//       const scaleY = pageHeight / canvasRef.current.height;
+
+//       // ממקמים את התמונה (החתימה) מתחת לדף (לדוגמה Y = -גובה הקנבס, כדי להוסיף מתחת)
+//       // אפשר לשנות לפי מיקום שתרצי
+//       firstPage.drawImage(pngImage, {
+//         x: 0,
+//         y: -canvasRef.current.height * scaleY, // מתחת לעמוד הקיים
+//         width: canvasRef.current.width * scaleX,
+//         height: canvasRef.current.height * scaleY,
+//       });
+
+//       const pdfBytes = await pdfDoc.save();
+//       const signedBlob = new Blob([pdfBytes], { type: 'application/pdf' });
+//       onSigned(signedBlob);
+//     } catch (error) {
+//       alert('שגיאה בשמירת הקובץ החתום: ' + error);
+//     }
+//   };
+
+//   return (
+//     <div style={{ width: '80vw', margin: 'auto', paddingTop: 20 }}>
+//       <h3>חתום על הקובץ</h3>
+
+//       <iframe
+//         ref={iframeRef}
+//         src={fileUrl}
+//         title="PDF Viewer"
+//         style={{
+//           width: '100%',
+//           height: '80vh',
+//           border: '1px solid #ccc',
+//           display: 'block',
+//           marginBottom: 10,
+//           overflow: 'auto',
+//         }}
+//       />
+
+//       <canvas
+//         ref={canvasRef}
+//         onMouseDown={startDrawing}
+//         onMouseMove={draw}
+//         onMouseUp={stopDrawing}
+//         onMouseLeave={stopDrawing}
+//       />
+
+//       <div style={{ textAlign: 'center', marginTop: 10 }}>
+//         <button onClick={handleSave} className="btn btn-success">
+//           סיום חתימה ושליחה
+//         </button>
+//       </div>
+//     </div>
+//   );
+// }
+
+// export default SignDocument;
+
 import React, { useRef, useEffect, useState } from 'react';
 import { PDFDocument } from 'pdf-lib';
 
@@ -906,14 +1038,12 @@ function SignDocument({ fileUrl, onSigned }: { fileUrl: string; onSigned: (blob:
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isDrawing, setIsDrawing] = useState(false);
 
-  // הגדרת גודל הקנבס לחתימה מתחת ל-iframe
   useEffect(() => {
     const canvas = canvasRef.current;
     if (canvas) {
-      // רוחב הקנבס שווה לרוחב ה-iframe או מלא רוחב הווידג׳ט
-      const width = iframeRef.current?.clientWidth || window.innerWidth * 0.8;
-      const height = 300; // גובה קבוע לחתימה
-
+      // canvas רוחב וגובה מתאימים לגודל החלון (אפשר לשנות לפי הצורך)
+      const width = window.innerWidth;
+      const height = 300; // גובה אזור חתימה קבוע
       canvas.width = width;
       canvas.height = height;
 
@@ -921,11 +1051,10 @@ function SignDocument({ fileUrl, onSigned }: { fileUrl: string; onSigned: (blob:
       canvas.style.height = `${height}px`;
 
       canvas.style.backgroundColor = 'transparent';
-      canvas.style.border = '1px solid #ccc';
+      canvas.style.borderTop = '1px solid #ccc';
       canvas.style.cursor = 'crosshair';
       canvas.style.display = 'block';
-      canvas.style.margin = '10px auto';
-      canvas.style.touchAction = 'none'; // למכשירים עם מגע
+      canvas.style.margin = '0 auto';
     }
   }, [fileUrl]);
 
@@ -957,13 +1086,13 @@ function SignDocument({ fileUrl, onSigned }: { fileUrl: string; onSigned: (blob:
     if (!canvasRef.current) return;
 
     try {
-      const existingPdfBytes = await fetch(fileUrl).then((res) => res.arrayBuffer());
+      const existingPdfBytes = await fetch(fileUrl).then(res => res.arrayBuffer());
       const pdfDoc = await PDFDocument.load(existingPdfBytes);
 
       const pngDataUrl = canvasRef.current.toDataURL('image/png');
       const pngImageBytes = Uint8Array.from(
         atob(pngDataUrl.split(',')[1]),
-        (c) => c.charCodeAt(0)
+        c => c.charCodeAt(0)
       );
       const pngImage = await pdfDoc.embedPng(pngImageBytes);
 
@@ -971,16 +1100,13 @@ function SignDocument({ fileUrl, onSigned }: { fileUrl: string; onSigned: (blob:
       const firstPage = pages[0];
       const { width: pageWidth, height: pageHeight } = firstPage.getSize();
 
-      // יחס המרה בין מימדי הקנבס לגודל ה-PDF
-      // כאן מניחים שרוחב הקנבס תואם לרוחב ה-PDF (או אפשר לשנות לפי הצורך)
       const scaleX = pageWidth / canvasRef.current.width;
       const scaleY = pageHeight / canvasRef.current.height;
 
-      // ממקמים את התמונה (החתימה) מתחת לדף (לדוגמה Y = -גובה הקנבס, כדי להוסיף מתחת)
-      // אפשר לשנות לפי מיקום שתרצי
+      // ממקמים את החתימה מתחת לעמוד (בגלל גובה אזור החתימה)
       firstPage.drawImage(pngImage, {
         x: 0,
-        y: -canvasRef.current.height * scaleY, // מתחת לעמוד הקיים
+        y: -canvasRef.current.height * scaleY,
         width: canvasRef.current.width * scaleX,
         height: canvasRef.current.height * scaleY,
       });
@@ -994,19 +1120,18 @@ function SignDocument({ fileUrl, onSigned }: { fileUrl: string; onSigned: (blob:
   };
 
   return (
-    <div style={{ width: '80vw', margin: 'auto', paddingTop: 20 }}>
-      <h3>חתום על הקובץ</h3>
+    <div style={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
+      <h3 style={{ margin: '10px' }}>חתום על הקובץ</h3>
 
       <iframe
         ref={iframeRef}
         src={fileUrl}
         title="PDF Viewer"
         style={{
-          width: '100%',
-          height: '80vh',
-          border: '1px solid #ccc',
+          flex: 1,
+          width: '100vw',
+          border: 'none',
           display: 'block',
-          marginBottom: 10,
           overflow: 'auto',
         }}
       />
@@ -1019,7 +1144,7 @@ function SignDocument({ fileUrl, onSigned }: { fileUrl: string; onSigned: (blob:
         onMouseLeave={stopDrawing}
       />
 
-      <div style={{ textAlign: 'center', marginTop: 10 }}>
+      <div style={{ textAlign: 'center', padding: 10 }}>
         <button onClick={handleSave} className="btn btn-success">
           סיום חתימה ושליחה
         </button>
