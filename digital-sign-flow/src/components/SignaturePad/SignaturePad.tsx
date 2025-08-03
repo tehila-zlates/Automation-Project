@@ -897,56 +897,15 @@
 // export default SignDocument;
 
 
-import React, { useRef, useEffect, useState } from 'react';
-import { PDFDocument } from 'pdf-lib';
+import React, { useRef, useState } from 'react';
 
 function SignDocument({ fileUrl, onSigned }: { fileUrl: string; onSigned: (blob: Blob) => void }) {
-  const iframeRef = useRef<HTMLIFrameElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [isSigning, setIsSigning] = useState(false);
   const [isDrawing, setIsDrawing] = useState(false);
 
-  // אזור חתימה מוגדר בתוך הקנבס (תתאימי לפי הצורך)
-  const signArea = { x: 50, y: 400, width: 300, height: 150 };
-
-  // עדכון גודל הקנבס וציור מסגרת אזור חתימה
-  useEffect(() => {
-    const resizeCanvasToIframe = () => {
-      const iframe = iframeRef.current;
-      const canvas = canvasRef.current;
-
-      if (iframe && canvas) {
-        const rect = iframe.getBoundingClientRect();
-
-        canvas.width = rect.width;
-        canvas.height = rect.height;
-
-        canvas.style.width = `${rect.width}px`;
-        canvas.style.height = `${rect.height}px`;
-
-        canvas.style.top = `${iframe.offsetTop}px`;
-        canvas.style.left = `${iframe.offsetLeft}px`;
-
-        // צייר מסגרת של אזור חתימה
-        const ctx = canvas.getContext('2d');
-        if (ctx) {
-          ctx.clearRect(0, 0, canvas.width, canvas.height);
-          ctx.strokeStyle = 'blue';
-          ctx.lineWidth = 2;
-          ctx.setLineDash([6]);
-          ctx.strokeRect(signArea.x, signArea.y, signArea.width, signArea.height);
-          ctx.setLineDash([]);
-        }
-      }
-    };
-
-    resizeCanvasToIframe();
-    window.addEventListener('resize', resizeCanvasToIframe);
-    return () => window.removeEventListener('resize', resizeCanvasToIframe);
-  }, []);
-
-  // ציור רק בתוך אזור החתימה
   const startDrawing = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    if (!isInSignArea(e.nativeEvent.offsetX, e.nativeEvent.offsetY)) return;
+    if (!isSigning) return;
     setIsDrawing(true);
     const ctx = canvasRef.current?.getContext('2d');
     if (ctx) {
@@ -956,9 +915,7 @@ function SignDocument({ fileUrl, onSigned }: { fileUrl: string; onSigned: (blob:
   };
 
   const draw = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    if (!isDrawing) return;
-    if (!isInSignArea(e.nativeEvent.offsetX, e.nativeEvent.offsetY)) return;
-
+    if (!isSigning || !isDrawing) return;
     const ctx = canvasRef.current?.getContext('2d');
     if (ctx) {
       ctx.lineTo(e.nativeEvent.offsetX, e.nativeEvent.offsetY);
@@ -969,93 +926,49 @@ function SignDocument({ fileUrl, onSigned }: { fileUrl: string; onSigned: (blob:
   };
 
   const stopDrawing = () => {
+    if (!isSigning) return;
     setIsDrawing(false);
   };
 
-  // בדיקה אם נקודה בתוך אזור החתימה
-  const isInSignArea = (x: number, y: number) => {
-    return (
-      x >= signArea.x &&
-      x <= signArea.x + signArea.width &&
-      y >= signArea.y &&
-      y <= signArea.y + signArea.height
-    );
-  };
-
-  const handleSave = async () => {
-    if (!canvasRef.current) return;
-
-    try {
-      const existingPdfBytes = await fetch(fileUrl).then((res) => res.arrayBuffer());
-      const pdfDoc = await PDFDocument.load(existingPdfBytes);
-
-      const pngDataUrl = canvasRef.current.toDataURL('image/png');
-      const pngImageBytes = Uint8Array.from(
-        atob(pngDataUrl.split(',')[1]),
-        (c) => c.charCodeAt(0)
-      );
-      const pngImage = await pdfDoc.embedPng(pngImageBytes);
-
-      const pages = pdfDoc.getPages();
-      const firstPage = pages[0];
-      const { width: pageWidth, height: pageHeight } = firstPage.getSize();
-
-      const scaleX = pageWidth / canvasRef.current.width;
-      const scaleY = pageHeight / canvasRef.current.height;
-
-      firstPage.drawImage(pngImage, {
-        x: signArea.x * scaleX,
-        y: pageHeight - (signArea.y + signArea.height) * scaleY,
-        width: signArea.width * scaleX,
-        height: signArea.height * scaleY,
-      });
-
-      const pdfBytes = await pdfDoc.save();
-      const signedBlob = new Blob([pdfBytes], { type: 'application/pdf' });
-      onSigned(signedBlob);
-    } catch (error) {
-      alert('שגיאה בשמירת הקובץ החתום: ' + error);
-    }
+  // הפעלה וכיבוי של מצב חתימה
+  const toggleSigning = () => {
+    setIsSigning((prev) => !prev);
   };
 
   return (
-    <div style={{ position: 'relative', height: '90vh', overflow: 'auto' }}>
+    <div style={{ position: 'relative', height: '90vh' }}>
       <h3>חתום על הקובץ</h3>
 
-      <div style={{ position: 'relative' }}>
-        <iframe
-          ref={iframeRef}
-          src={fileUrl}
-          title="PDF Viewer"
-          style={{
-            width: '100%',
-            height: '80vh',
-            border: 'none',
-            display: 'block',
-          }}
-        />
-
-        <canvas
-          ref={canvasRef}
-          onMouseDown={startDrawing}
-          onMouseMove={draw}
-          onMouseUp={stopDrawing}
-          onMouseLeave={stopDrawing}
-          style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            zIndex: 10,
-            backgroundColor: 'transparent',
-            pointerEvents: 'auto',
-            cursor: 'crosshair',
-          }}
-        />
-      </div>
-
-      <button className="btn btn-success mt-2" onClick={handleSave}>
-        סיום חתימה ושליחה
+      <button onClick={toggleSigning}>
+        {isSigning ? 'סיים חתימה' : 'התחל חתימה'}
       </button>
+
+      <iframe
+        src={fileUrl}
+        style={{ width: '100%', height: '80vh', border: 'none' }}
+        title="PDF Viewer"
+      />
+
+      <canvas
+        ref={canvasRef}
+        width={window.innerWidth}
+        height={window.innerHeight * 0.8}
+        onMouseDown={startDrawing}
+        onMouseMove={draw}
+        onMouseUp={stopDrawing}
+        onMouseLeave={stopDrawing}
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          pointerEvents: isSigning ? 'auto' : 'none',
+          cursor: isSigning ? 'crosshair' : 'default',
+          backgroundColor: 'transparent',
+          width: '100%',
+          height: '80vh',
+          zIndex: 10,
+        }}
+      />
     </div>
   );
 }
