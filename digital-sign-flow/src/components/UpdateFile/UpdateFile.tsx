@@ -88,10 +88,21 @@ function UploadForm() {
         // <button className="btn btn-success mt-2" onClick={toSignPage}>
         //   סיום חתימה ושליחה
         // </button>
-                <a href={encodeURI(fileUrl)} target="_blank" rel="noopener noreferrer">
-          לצפייה בקובץ ולחתימה
-        </a>
-     
+        // <a href={encodeURI(fileUrl)} target="_blank" rel="noopener noreferrer">
+        //   לצפייה בקובץ ולחתימה
+        // </a>
+        <a
+  href=""
+  onClick={(e) => {
+    e.preventDefault();
+    window.open(`/sign/${encodeURIComponent(fileUrl)}`, '_blank', 'noopener,noreferrer');
+  }}
+  style={{ color: 'blue', textDecoration: 'underline', cursor: 'pointer' }}
+>
+  לצפייה בקובץ ולחתימה
+</a>
+
+
 
 
 
