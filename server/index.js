@@ -82,15 +82,72 @@ const transporter = nodemailer.createTransport({
 //   }
 // });
 
+// app.post('/upload', uploadMemory.single('file'), async (req, res) => {
+//   try {
+//     const { file } = req;
+//     const { email } = req.body;
+//     if (!file || !email) return res.status(400).send('Missing file or email');
+
+//     // תמיד אותו שם, בלי סיומת
+//     const finalFilename = Date.now().toString();
+//     const uploadPath = path.join(__dirname, 'uploads', finalFilename);
+
+//     if (file.mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+//       const result = await mammoth.convertToHtml({ buffer: file.buffer });
+//       const text = result.value.replace(/<[^>]+>/g, '');
+
+//       const pdfDoc = await PDFDocument.create();
+//       pdfDoc.registerFontkit(fontkit);
+//       const font = await pdfDoc.embedFont(fs.readFileSync(path.join(__dirname, 'fonts', 'Alef-Regular.ttf')));
+//       const page = pdfDoc.addPage([595.28, 841.89]);
+
+//       page.drawText(text, {
+//         x: 50,
+//         y: page.getHeight() - 50,
+//         size: 14,
+//         font,
+//         maxWidth: 495,
+//         lineHeight: 20,
+//       });
+
+//       const pdfBytes = await pdfDoc.save();
+//       fs.writeFileSync(uploadPath, pdfBytes);
+//     } else if (file.mimetype === 'application/pdf') {
+//       fs.writeFileSync(uploadPath, file.buffer);
+//     } else {
+//       return res.status(400).send('Unsupported file type');
+//     }
+
+//     // מיפוי מייל לפי שם קובץ (ללא סיומת)
+//     emailMap.set(finalFilename, email);
+
+//     console.log("===============");
+//     console.log("finalFilename:", finalFilename);
+//     console.log("email:", email);
+//     console.log("emailMap:", emailMap);
+
+//     res.json({
+//       fileUrl: `https://automation-project-server.onrender.com/uploads/${finalFilename}`,
+//       signPageUrl: `https://automation-digital-sign-flow.onrender.com/sign/${finalFilename}`,
+//       filename: finalFilename
+//     });
+
+//   } catch (err) {
+//     console.error("Upload error:", err);
+//     res.status(500).send('Internal Server Error');
+//   }
+// });
 app.post('/upload', uploadMemory.single('file'), async (req, res) => {
   try {
     const { file } = req;
     const { email } = req.body;
     if (!file || !email) return res.status(400).send('Missing file or email');
 
-    // תמיד אותו שם, בלי סיומת
     const finalFilename = Date.now().toString();
-    const uploadPath = path.join(__dirname, 'uploads', finalFilename);
+    const uploadPathNoExt = path.join(__dirname, 'uploads', finalFilename);
+    const uploadPathWithPdf = path.join(__dirname, 'uploads', finalFilename + '.pdf');
+
+    let pdfBytes;
 
     if (file.mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
       const result = await mammoth.convertToHtml({ buffer: file.buffer });
@@ -110,15 +167,17 @@ app.post('/upload', uploadMemory.single('file'), async (req, res) => {
         lineHeight: 20,
       });
 
-      const pdfBytes = await pdfDoc.save();
-      fs.writeFileSync(uploadPath, pdfBytes);
+      pdfBytes = await pdfDoc.save();
     } else if (file.mimetype === 'application/pdf') {
-      fs.writeFileSync(uploadPath, file.buffer);
+      pdfBytes = file.buffer;
     } else {
       return res.status(400).send('Unsupported file type');
     }
 
-    // מיפוי מייל לפי שם קובץ (ללא סיומת)
+    // שמירה פעמיים - בלי סיומת ועם סיומת
+    fs.writeFileSync(uploadPathNoExt, pdfBytes);
+    fs.writeFileSync(uploadPathWithPdf, pdfBytes);
+
     emailMap.set(finalFilename, email);
 
     console.log("===============");
@@ -127,7 +186,7 @@ app.post('/upload', uploadMemory.single('file'), async (req, res) => {
     console.log("emailMap:", emailMap);
 
     res.json({
-      fileUrl: `https://automation-project-server.onrender.com/uploads/${finalFilename}`,
+      fileUrl: `https://automation-project-server.onrender.com/uploads/${finalFilename}.pdf`,
       signPageUrl: `https://automation-digital-sign-flow.onrender.com/sign/${finalFilename}`,
       filename: finalFilename
     });
