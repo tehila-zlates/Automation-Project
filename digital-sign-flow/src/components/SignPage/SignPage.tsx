@@ -66,7 +66,7 @@ function SignPage() {
   const [showSigner, setShowSigner] = useState(false);
 
   const fileUrl = `https://automation-project-server.onrender.com/uploads/${filename}`;
-console.log(fileUrl);
+  console.log(fileUrl);
 
   if (!filename) return <div>שגיאה: לא נמצא שם קובץ</div>;
 
@@ -75,7 +75,7 @@ console.log(fileUrl);
       {!showSigner ? (
         <>
           <h2>לצפייה וחתימה על המסמך</h2>
-          <a
+          {/* <a
             href="#"
             className="btn btn-primary"
             onClick={(e) => {
@@ -84,7 +84,18 @@ console.log(fileUrl);
             }}
           >
             לחץ כאן לפתיחת המסמך
+          </a> */}
+          <a
+            href="#"
+            onClick={(e) => {
+              e.preventDefault();
+              setShowSigner(true);
+            }}
+            style={{ fontSize: '1.2rem', textDecoration: 'underline', cursor: 'pointer' }}
+          >
+            {fileUrl}
           </a>
+
         </>
       ) : (
         <SignDocument
