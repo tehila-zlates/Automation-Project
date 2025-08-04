@@ -144,13 +144,22 @@ function UploadForm() {
             שלח
           </button>
         </form>
-
-        {fileUrl && (
+ {fileUrl && (
+        <a
+          href={`/sign/${encodeURIComponent(fileUrl)}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="btn btn-link d-block mt-2 text-center"
+        >
+          לצפייה בקובץ ולחתימה
+        </a>
+      )} 
+        {/* {fileUrl && (
           
           <button className="btn btn-success w-100 mt-3" onClick={toSignPage}>
             סיום חתימה ושליחה
           </button>
-        )}
+        )} */}
 
         {/* דוגמת קישור ישיר (לא חובה) */}
         {/* 
