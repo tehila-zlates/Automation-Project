@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import validator from 'validator';
 import SignPage from '../SignPage/SignPage';
-import { useNavigate,Link } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 
 function UploadForm() {
   const [email, setEmail] = useState('');
@@ -90,14 +90,9 @@ function UploadForm() {
         </button>
       )} */}
       {fileUrl && (
-  <button
-    className="btn btn-success mt-2"
-    onClick={() => window.open(`/sign/${encodeURIComponent(fileUrl)}`, '_blank', 'noopener,noreferrer')}
-  >
-    סיום חתימה ושליחה
-  </button>
-)}
-
+      <a href={encodeURI(fileUrl)} target="_blank" rel="noopener noreferrer">
+        לצפייה בקובץ ולחתימה
+      </a>)}
     </div>
   );
 }
