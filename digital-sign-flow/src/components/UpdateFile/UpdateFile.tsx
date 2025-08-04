@@ -36,6 +36,8 @@ function UploadForm() {
 
       if (res.ok) {
         setFileUrl(data.filename);
+        console.log("4564654");
+        
       } else {
         alert(data.message || 'Error uploading file');
       }
