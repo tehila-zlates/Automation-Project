@@ -119,7 +119,7 @@ function UploadForm() {
               id="email"
               placeholder="הכנס כתובת אימייל"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => setEmail(e.target.value)} 
             />
           </div>
           <div className="form-group mb-3">
@@ -130,7 +130,7 @@ function UploadForm() {
               id="fileUpload"
               onChange={(e) => {
                 if (e.target.files && e.target.files.length > 0) {
-                  setFile(e.target.files[0]);
+                  setFile(e.target.files[0]); 
                 }
               }}
             />
