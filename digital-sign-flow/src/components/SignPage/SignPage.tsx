@@ -60,7 +60,7 @@ function SignPage() {
 
   return (
     <div>
-      <SignDocument fileId={fileUrl} onSigned={handleSigned} />
+      <SignDocument fileUrl={fileUrl} onSigned={handleSigned} />
     </div>
   );
 }
