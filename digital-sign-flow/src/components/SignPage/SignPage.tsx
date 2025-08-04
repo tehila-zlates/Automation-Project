@@ -7,7 +7,7 @@ function SignPage() {
   const [done, setDone] = useState(false);
 
   const fileUrl = useMemo(() => {
-    return `https://automation-project-server.onrender.com/uploads/${filename}.pdf`;
+    return `https://automation-project-server.onrender.com/uploads/${filename}`;
   }, [filename]);
 
   console.log("fileUrl");
@@ -60,7 +60,7 @@ function SignPage() {
 
   return (
     <div>
-      <SignDocument fileUrl={fileUrl} onSigned={handleSigned} />
+      <SignDocument fileId={fileUrl} onSigned={handleSigned} />
     </div>
   );
 }
