@@ -84,16 +84,26 @@ function UploadForm() {
           שלח
         </button>
       </form>
-      {fileUrl && (
+      {/* {fileUrl && (
         <button className="btn btn-success mt-2" onClick={toSignPage}>
           סיום חתימה ושליחה
         </button>
-//         <a href={`/sign/${encodeURIComponent(fileUrl)}`} target="_blank" rel="noopener noreferrer">
-//   לצפייה בקובץ ולחתימה
-// </a>
-      )}
+      )} */}
+      {fileUrl && (
+  <a
+    href={`/sign/${encodeURIComponent(fileUrl)}`}
+    target="_blank"
+    rel="noopener noreferrer"
+    className="btn btn-success mt-2"
+  >
+    סיום חתימה ושליחה
+  </a>
+)}
+
     </div>
   );
 }
-
+//         <a href={`/sign/${encodeURIComponent(fileUrl)}`} target="_blank" rel="noopener noreferrer">
+//   לצפייה בקובץ ולחתימה
+// </a>
 export default UploadForm;
