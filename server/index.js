@@ -8,6 +8,7 @@ const nodemailer = require('nodemailer');
 const { PDFDocument } = require('pdf-lib');
 const fontkit = require('@pdf-lib/fontkit');
 const axios = require('axios'); // צריך להוסיף את זה בהתחלה בקובץ
+const { exec } = require('child_process');
 
 const app = express();
 app.use(cors());
