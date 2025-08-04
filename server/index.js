@@ -382,6 +382,7 @@ app.post('/upload', uploadMemory.single('file'), async (req, res) => {
 //     res.status(500).send('Error while processing signed file');
 //   }
 // });
+
 app.post('/signed/:filename', uploadDisk.single('signed'), async (req, res) => {
   try {
     const originalFilename = decodeURIComponent(req.params.filename); // ללא .pdf
