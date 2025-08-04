@@ -66,6 +66,8 @@ app.post('/upload', uploadMemory.single('file'), async (req, res) => {
     }
 
     emailMap.set(finalFilename, email);
+console.log(finalFilename);
+console.log(email);
 
     const baseUrl = `http://localhost:3001` || 'https://automation-project-server.onrender.com';
     const clientUrl = `http://localhost:3000` || 'https://automation-digital-sign-flow.onrender.com';
