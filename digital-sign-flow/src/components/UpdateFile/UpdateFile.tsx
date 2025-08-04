@@ -90,14 +90,12 @@ function UploadForm() {
         </button>
       )} */}
       {fileUrl && (
-  <a
-    href={`/sign/${encodeURIComponent(fileUrl)}`}
-    target="_blank"
-    rel="noopener noreferrer"
+  <button
     className="btn btn-success mt-2"
+    onClick={() => window.open(`/sign/${encodeURIComponent(fileUrl)}`, '_blank', 'noopener,noreferrer')}
   >
     סיום חתימה ושליחה
-  </a>
+  </button>
 )}
 
     </div>
