@@ -144,6 +144,10 @@ app.get("/", (req, res) => {
 //   console.log('Server running at http://localhost:3001');
 // });
 
+app.get('/*', function(req, res) {
+  res.sendFile(path.join(__dirname, 'build', 'index.html'));
+});
+
 const port = process.env.PORT;
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);
