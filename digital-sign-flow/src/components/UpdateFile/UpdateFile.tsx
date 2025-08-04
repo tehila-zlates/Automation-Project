@@ -23,9 +23,7 @@ function UploadForm() {
     }
     const formData = new FormData();
     formData.append('email', email);
-    formData.append('file', file);
-    console.log(file);
-    
+    formData.append('file', file);    
 
     try {
       const res = await fetch('https://automation-project-server.onrender.com/upload', {

@@ -34,13 +34,61 @@ const transporter = nodemailer.createTransport({
   }
 });
 
+// app.post('/upload', uploadMemory.single('file'), async (req, res) => {
+//   try {
+//     const { file } = req;
+//     const { email } = req.body;
+//     if (!file || !email) return res.status(400).send('Missing file or email');
+
+//     let finalFilename = Date.now().toString();
+//     const uploadPath = path.join(__dirname, 'uploads', finalFilename);
+
+//     if (file.mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+//       const result = await mammoth.convertToHtml({ buffer: file.buffer });
+//       const text = result.value.replace(/<[^>]+>/g, '');
+
+//       const pdfDoc = await PDFDocument.create();
+//       pdfDoc.registerFontkit(fontkit);
+//       const font = await pdfDoc.embedFont(fs.readFileSync(path.join(__dirname, 'fonts', 'Alef-Regular.ttf')));
+//       const page = pdfDoc.addPage([595.28, 841.89]);
+
+//       page.drawText(text, {
+//         x: 50, y: page.getHeight() - 50,
+//         size: 14, font, maxWidth: 495, lineHeight: 20,
+//       });
+
+//       fs.writeFileSync(uploadPath, await pdfDoc.save());
+//     } else if (file.mimetype === 'application/pdf') {
+//       finalFilename = Date.now() + '-' + file.originalname;
+//       fs.writeFileSync(path.join(__dirname, 'uploads', finalFilename), file.buffer);
+//     } else {
+//       return res.status(400).send('Unsupported file type');
+//     }
+
+//     emailMap.set(finalFilename, email);
+//     console.log("===============");
+//     console.log(finalFilename);
+//     console.log(email);
+//     console.log(emailMap);
+
+//     res.json({
+//       fileUrl: `https://automation-project-server.onrender.com/uploads/${finalFilename}`,
+//       signPageUrl: `https://automation-digital-sign-flow.onrender.com/sign/${finalFilename}`
+//     });
+
+//   } catch (err) {
+//     console.error("Upload error:", err);
+//     res.status(500).send('Internal Server Error');
+//   }
+// });
 app.post('/upload', uploadMemory.single('file'), async (req, res) => {
   try {
     const { file } = req;
     const { email } = req.body;
     if (!file || !email) return res.status(400).send('Missing file or email');
 
-    let finalFilename = Date.now().toString();
+    // תמיד אותו שם, בלי סיומת
+    const finalFilename = Date.now().toString();
     const uploadPath = path.join(__dirname, 'uploads', finalFilename);
 
     if (file.mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
@@ -53,23 +101,29 @@ app.post('/upload', uploadMemory.single('file'), async (req, res) => {
       const page = pdfDoc.addPage([595.28, 841.89]);
 
       page.drawText(text, {
-        x: 50, y: page.getHeight() - 50,
-        size: 14, font, maxWidth: 495, lineHeight: 20,
+        x: 50,
+        y: page.getHeight() - 50,
+        size: 14,
+        font,
+        maxWidth: 495,
+        lineHeight: 20,
       });
 
-      fs.writeFileSync(uploadPath, await pdfDoc.save());
+      const pdfBytes = await pdfDoc.save();
+      fs.writeFileSync(uploadPath, pdfBytes);
     } else if (file.mimetype === 'application/pdf') {
-      finalFilename = Date.now() + '-' + file.originalname;
-      fs.writeFileSync(path.join(__dirname, 'uploads', finalFilename), file.buffer);
+      fs.writeFileSync(uploadPath, file.buffer);
     } else {
       return res.status(400).send('Unsupported file type');
     }
 
+    // מיפוי מייל לפי שם קובץ (ללא סיומת)
     emailMap.set(finalFilename, email);
+
     console.log("===============");
-    console.log(finalFilename);
-    console.log(email);
-    console.log(emailMap);
+    console.log("finalFilename:", finalFilename);
+    console.log("email:", email);
+    console.log("emailMap:", emailMap);
 
     res.json({
       fileUrl: `https://automation-project-server.onrender.com/uploads/${finalFilename}`,
@@ -281,10 +335,57 @@ app.post('/upload', uploadMemory.single('file'), async (req, res) => {
 //   }
 // });
 
+// app.post('/signed/:filename', uploadDisk.single('signed'), async (req, res) => {
+//   try {
+//     const signedImagePath = path.join(__dirname, 'uploads', req.file.filename);
+//     const originalFilename = decodeURIComponent(req.params.filename);
+
+//     let signatureBytes;
+
+//     if (req.file.mimetype.startsWith('image/')) {
+//       const signaturePdf = await PDFDocument.create();
+//       const page = signaturePdf.addPage([595.28, 841.89]);
+//       const imgBytes = fs.readFileSync(signedImagePath);
+//       const image = req.file.mimetype === 'image/png'
+//         ? await signaturePdf.embedPng(imgBytes)
+//         : await signaturePdf.embedJpg(imgBytes);
+
+//       page.drawImage(image, { x: 0, y: 0, width: page.getWidth(), height: page.getHeight() });
+//       signatureBytes = await signaturePdf.save();
+//     } else if (req.file.mimetype === 'application/pdf') {
+//       signatureBytes = fs.readFileSync(signedImagePath);
+//     } else {
+//       return res.status(400).send('Unsupported signature type');
+//     }
+
+//     const signedFilename = originalFilename.replace('.pdf', '_signed.pdf');
+//     const signedPath = path.join(__dirname, 'uploads', signedFilename);
+//     fs.writeFileSync(signedPath, signatureBytes);
+
+//     const email = emailMap.get(originalFilename);
+//     if (!email) return res.status(400).send(emailMap);
+
+//     await transporter.sendMail({
+//       from: 't3265137@gmail.com',
+//       to: email,
+//       subject: 'המסמך החתום שלך',
+//       text: 'המסמך החתום מצורף כאן.',
+//       attachments: [{ filename: signedFilename, path: signedPath }]
+//     });
+
+//     fs.unlinkSync(signedImagePath);
+//     res.send({ success: true });
+
+//   } catch (err) {
+//     console.error('Signing error:', err);
+//     res.status(500).send('Error while processing signed file');
+//   }
+// });
 app.post('/signed/:filename', uploadDisk.single('signed'), async (req, res) => {
   try {
+    const originalFilename = decodeURIComponent(req.params.filename); // ללא .pdf
+    const filePath = path.join(__dirname, 'uploads', originalFilename);
     const signedImagePath = path.join(__dirname, 'uploads', req.file.filename);
-    const originalFilename = decodeURIComponent(req.params.filename);
 
     let signatureBytes;
 
@@ -304,12 +405,13 @@ app.post('/signed/:filename', uploadDisk.single('signed'), async (req, res) => {
       return res.status(400).send('Unsupported signature type');
     }
 
-    const signedFilename = originalFilename.replace('.pdf', '_signed.pdf');
+    // כאן מוסיפים את הסיומת רק לשם של קובץ החתימה
+    const signedFilename = originalFilename + '_signed.pdf';
     const signedPath = path.join(__dirname, 'uploads', signedFilename);
     fs.writeFileSync(signedPath, signatureBytes);
 
     const email = emailMap.get(originalFilename);
-    if (!email) return res.status(400).send(emailMap);
+    if (!email) return res.status(400).send({ error: 'Email not found', emailMap });
 
     await transporter.sendMail({
       from: 't3265137@gmail.com',
@@ -320,6 +422,7 @@ app.post('/signed/:filename', uploadDisk.single('signed'), async (req, res) => {
     });
 
     fs.unlinkSync(signedImagePath);
+
     res.send({ success: true });
 
   } catch (err) {
