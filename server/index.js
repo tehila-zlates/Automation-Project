@@ -86,70 +86,70 @@ app.post('/upload', uploadMemory.single('file'), async (req, res) => {
   }
 });
 
-app.post('/upload', uploadMemory.single('file'), async (req, res) => {
-  try {
-    const { file } = req;
-    const { email } = req.body;
-    if (!file || !email) return res.status(400).send('Missing file or email');
+// app.post('/upload', uploadMemory.single('file'), async (req, res) => {
+//   try {
+//     const { file } = req;
+//     const { email } = req.body;
+//     if (!file || !email) return res.status(400).send('Missing file or email');
 
-    const uploadsDir = path.join(__dirname, 'uploads');
-    if (!fs.existsSync(uploadsDir)) {
-      fs.mkdirSync(uploadsDir);
-    }
+//     const uploadsDir = path.join(__dirname, 'uploads');
+//     if (!fs.existsSync(uploadsDir)) {
+//       fs.mkdirSync(uploadsDir);
+//     }
 
-    let finalFilename;
-    let uploadPath;
+//     let finalFilename;
+//     let uploadPath;
 
-    if (file.mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
-      // שמירת קובץ docx זמני
-      const tempDocxName = Date.now() + '-' + file.originalname;
-      const tempDocxPath = path.join(uploadsDir, tempDocxName);
-      fs.writeFileSync(tempDocxPath, file.buffer);
+//     if (file.mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+//       // שמירת קובץ docx זמני
+//       const tempDocxName = Date.now() + '-' + file.originalname;
+//       const tempDocxPath = path.join(uploadsDir, tempDocxName);
+//       fs.writeFileSync(tempDocxPath, file.buffer);
 
-      // שם הקובץ PDF שיווצר
-      finalFilename = tempDocxName.replace(/\.docx$/, '.pdf');
-      uploadPath = path.join(uploadsDir, finalFilename);
+//       // שם הקובץ PDF שיווצר
+//       finalFilename = tempDocxName.replace(/\.docx$/, '.pdf');
+//       uploadPath = path.join(uploadsDir, finalFilename);
 
-      // הפעלת הפקודה להמרה ל-PDF עם LibreOffice
-      await new Promise((resolve, reject) => {
-        const command = `soffice --headless --convert-to pdf --outdir "${uploadsDir}" "${tempDocxPath}"`;
-        exec(command, (error, stdout, stderr) => {
-          if (error) {
-            console.error('LibreOffice error:', stderr);
-            reject(stderr || error);
-          } else {
-            resolve();
-          }
-        });
-      });
+//       // הפעלת הפקודה להמרה ל-PDF עם LibreOffice
+//       await new Promise((resolve, reject) => {
+//         const command = `soffice --headless --convert-to pdf --outdir "${uploadsDir}" "${tempDocxPath}"`;
+//         exec(command, (error, stdout, stderr) => {
+//           if (error) {
+//             console.error('LibreOffice error:', stderr);
+//             reject(stderr || error);
+//           } else {
+//             resolve();
+//           }
+//         });
+//       });
 
-      // מחיקת הקובץ הזמני docx
-      fs.unlinkSync(tempDocxPath);
+//       // מחיקת הקובץ הזמני docx
+//       fs.unlinkSync(tempDocxPath);
 
-      // בדיקה שה-PDF נוצר
-      if (!fs.existsSync(uploadPath)) {
-        return res.status(500).send('Conversion to PDF failed');
-      }
-    } else if (file.mimetype === 'application/pdf') {
-      finalFilename = Date.now() + '-' + file.originalname;
-      uploadPath = path.join(uploadsDir, finalFilename);
-      fs.writeFileSync(uploadPath, file.buffer);
-    } else {
-      return res.status(400).send('Unsupported file type');
-    }
+//       // בדיקה שה-PDF נוצר
+//       if (!fs.existsSync(uploadPath)) {
+//         return res.status(500).send('Conversion to PDF failed');
+//       }
+//     } else if (file.mimetype === 'application/pdf') {
+//       finalFilename = Date.now() + '-' + file.originalname;
+//       uploadPath = path.join(uploadsDir, finalFilename);
+//       fs.writeFileSync(uploadPath, file.buffer);
+//     } else {
+//       return res.status(400).send('Unsupported file type');
+//     }
 
-    emailMap.set(finalFilename, email);
+//     emailMap.set(finalFilename, email);
 
-    res.json({
-      fileUrl: `https://automation-project-server.onrender.com/uploads/${finalFilename}`,
-      signPageUrl: `https://automation-digital-sign-flow.onrender.com/sign/${finalFilename}`,
-      filename: finalFilename
-    });
-  } catch (err) {
-    console.error("Upload error:", err);
-    res.status(500).send('Internal Server Error');
-  }
-});
+//     res.json({
+//       fileUrl: `https://automation-project-server.onrender.com/uploads/${finalFilename}`,
+//       signPageUrl: `https://automation-digital-sign-flow.onrender.com/sign/${finalFilename}`,
+//       filename: finalFilename
+//     });
+//   } catch (err) {
+//     console.error("Upload error:", err);
+//     res.status(500).send('Internal Server Error');
+//   }
+// });
 // const cloudConvert = new CloudConvert('eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiMDAzODk5ZmMzNjBkYzA2MDM2ZmNhODJhMGUyZmFlZjlmNjEyNmQzODRhNWJhOGYyOWI3YmM0ODFiMTFkOTQ3YTA1ODQ5ZThkMzkwNjU0MzEiLCJpYXQiOjE3NTQzMTMxNzYuOTI5OTExLCJuYmYiOjE3NTQzMTMxNzYuOTI5OTEyLCJleHAiOjQ5MDk5ODY3NzYuOTI1MTQyLCJzdWIiOiI3MjU2NDgyMCIsInNjb3BlcyI6WyJ1c2VyLnJlYWQiLCJ1c2VyLndyaXRlIiwidGFzay5yZWFkIiwidGFzay53cml0ZSIsIndlYmhvb2sucmVhZCIsIndlYmhvb2sud3JpdGUiLCJwcmVzZXQucmVhZCIsInByZXNldC53cml0ZSJdfQ.foQ4RKiDidHX7vZeHLW0z1_gG5XrvlZJPuHmbhrvDcmIBlWmMqe7p0Xq2aO8zebgJeLt7HQjVKoFYTlsZYHGqIf0AyCp6Ozvou85dfZU4C_fG-2K_AbnFkt8mbtVZZFNZwF31j6eu6Qcx2KDMK0oH8BNA0OEhRTfJSp_Y6eqI1wCMJctBZXBmZNQ7Kqy_c9l_9OQoxJUkcONONF_Tp2nTggOk03YGXXKe0XTC-IbNTMRX42glE4Fq1bRY-MU0df4v8C1BjBEhtU72ZQ6-2w9otXJeE4jBWhgi0NGXizt68klynLSVGoFGneCwwiWFt3AxVm6Zuhp36qbjJVfwHzSEmm5EicKZCVQ65Zc-GWfsgJCoCj3JLHMOa4Kar5NIrcyVvTekaQmJ_uOyQ10HxSZrnrRGqvcPzKp6lV6RZmeqjZ0aLrVp9gFn1NPcE25X6-VRkLeu5xV4ULOG-WbM-jVu3FdaXPgLlOlOjYuU8encX6TIMk9g-ATT_QSkhBFqhpLNc4Ox2uKZZtAe6iTfA0VwnaQqjzRhvifa9GC9Rkc_0Ox_6Nw_pRxSSEO1ewp7GLld2VLxhteUI4H4PMihpQvnQuskOWc3ewNkO7vR5YU6hYObwWRR8A5nTTvrbEev5-731Z5hg3p5RKwnW2XfnqEsjnDdTzWkYZuqRk_oJ_1Iyc');
 
 // app.post('/upload', uploadMemory.single('file'), async (req, res) => {
