@@ -66,6 +66,7 @@ function SignPage() {
   const [showSigner, setShowSigner] = useState(false);
 
   const fileUrl = `https://automation-project-server.onrender.com/uploads/${filename}`;
+console.log(fileUrl);
 
   if (!filename) return <div>שגיאה: לא נמצא שם קובץ</div>;
 
