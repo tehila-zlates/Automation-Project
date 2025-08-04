@@ -1401,6 +1401,8 @@ function SignDocument({ fileId, onSigned }: { fileId: string; onSigned: (blob: B
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isDrawing, setIsDrawing] = useState(false);
+console.log("88888888");
+console.log(fileId);
 
   const fullUrl = `https://automation-digital-sign-flow.onrender.com/uploads/${fileId}`;
 
