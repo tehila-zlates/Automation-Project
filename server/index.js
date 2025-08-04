@@ -81,6 +81,7 @@ const transporter = nodemailer.createTransport({
 //     res.status(500).send('Internal Server Error');
 //   }
 // });
+
 app.post('/upload', uploadMemory.single('file'), async (req, res) => {
   try {
     const { file } = req;

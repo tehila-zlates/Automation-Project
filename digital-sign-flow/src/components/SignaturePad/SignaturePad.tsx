@@ -1402,7 +1402,7 @@ function SignDocument({ fileId, onSigned }: { fileId: string; onSigned: (blob: B
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isDrawing, setIsDrawing] = useState(false);
 
-  const fullUrl = `https://automation-digital-sign-flow.onrender.com/uploads/${fileId}.pdf`;
+  const fullUrl = `https://automation-digital-sign-flow.onrender.com/uploads/${fileId}`;
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -1449,6 +1449,9 @@ function SignDocument({ fileId, onSigned }: { fileId: string; onSigned: (blob: B
     if (!canvasRef.current) return;
 
     try {
+      console.log('111111111111');
+      console.log(fullUrl);
+      
       const existingPdfBytes = await fetch(fullUrl).then(res => res.arrayBuffer());
       const pdfDoc = await PDFDocument.load(existingPdfBytes);
 
