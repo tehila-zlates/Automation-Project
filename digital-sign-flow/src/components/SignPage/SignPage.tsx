@@ -50,7 +50,7 @@ if (done)
   return (
     <div className="d-flex justify-content-center align-items-center" style={{ height: '100vh' }}>
       <div className="alert alert-success text-center" style={{ fontSize: '1.2rem', maxWidth: '500px' }}>
-         הקובץ נחתם ונשלח למייל בהצלחה!
+         !הקובץ נחתם ונשלח למייל בהצלחה
       </div>
     </div>
   );
