@@ -5,7 +5,7 @@ import { useNavigate, Link } from 'react-router-dom';
 
 function UploadForm() {
   const [email, setEmail] = useState('');
-  const [file, setFile] = useState<File | null>(null);
+  const [file, setFile] = useState('');
   const [error, setError] = useState('');
   const [fileUrl, setFileUrl] = useState('');
   const navigate = useNavigate();
@@ -101,56 +101,63 @@ function UploadForm() {
   //     } */}
   //   </div>
   // );
-return (
-  <div
-    className="d-flex justify-content-center align-items-center"
-    style={{ height: '100vh', direction: 'rtl' }}
-  >
-    <div style={{ width: '100%', maxWidth: '500px' }}>
-      <h2 className="text-center mb-4">העלאת מסמך</h2>
-      <form onSubmit={handleSubmit}>
-        <div className="form-group mb-3">
-          <label htmlFor="email">כתובת אימייל</label>
-          <input
-            type="email"
-            className="form-control"
-            id="email"
-            placeholder="הכנס כתובת אימייל"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-        </div>
-        <div className="form-group mb-3">
-          <label htmlFor="fileUpload">להעלאת הקובץ</label>
-          <input
-            type="file"
-            className="form-control"
-            id="fileUpload"
-            onChange={(e) => {
-              if (e.target.files && e.target.files.length > 0) {
-                setFile(e.target.files[0]);
-              }
-            }}
-          />
-        </div>
-        {error && (
-          <div className="alert alert-danger" role="alert">
-            {error}
+  return (
+    <div
+      className="d-flex justify-content-center align-items-center"
+      style={{ height: '100vh', direction: 'rtl' }}
+    >
+      <div style={{ width: '100%', maxWidth: '500px' }}>
+        <h2 className="text-center mb-4">העלאת מסמך</h2>
+        <form onSubmit={handleSubmit}>
+          <div className="form-group mb-3">
+            <label htmlFor="email">כתובת אימייל</label>
+            <input
+              type="email"
+              className="form-control"
+              id="email"
+              placeholder="הכנס כתובת אימייל"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
           </div>
+          <div className="form-group mb-3">
+            <label htmlFor="fileUpload">להעלאת הקובץ</label>
+            <input
+              type="file"
+              className="form-control"
+              id="fileUpload"
+              // onChange={(e) => {
+              //   if (e.target.files && e.target.files.length > 0) {
+              //     setFile(e.target.files[0]);
+              //   }
+              // }}
+              onChange={(e) => {
+                if (e.target.files && e.target.files.length > 0) {
+                  const nameWithoutExtension = e.target.files[0].name.replace(/\.[^/.]+$/, '');
+                  setFile(nameWithoutExtension);
+                }
+              }}
+
+            />
+          </div>
+          {error && (
+            <div className="alert alert-danger" role="alert">
+              {error}
+            </div>
+          )}
+          <button type="submit" className="btn btn-primary w-100">
+            שלח
+          </button>
+        </form>
+
+        {fileUrl && (
+          <button className="btn btn-success w-100 mt-3" onClick={toSignPage}>
+            סיום חתימה ושליחה
+          </button>
         )}
-        <button type="submit" className="btn btn-primary w-100">
-          שלח
-        </button>
-      </form>
 
-      {fileUrl && (
-        <button className="btn btn-success w-100 mt-3" onClick={toSignPage}>
-          סיום חתימה ושליחה
-        </button>
-      )}
-
-      {/* דוגמת קישור ישיר (לא חובה) */}
-      {/* 
+        {/* דוגמת קישור ישיר (לא חובה) */}
+        {/* 
       {fileUrl && (
         <a
           href={`/sign/${encodeURIComponent(fileUrl)}`}
@@ -162,9 +169,9 @@ return (
         </a>
       )} 
       */}
+      </div>
     </div>
-  </div>
-);
+  );
 
 }
 //         <a href={`/sign/${encodeURIComponent(fileUrl)}`} target="_blank" rel="noopener noreferrer">
