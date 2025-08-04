@@ -56,14 +56,13 @@
 
 // export default SignPage;
 
-
 import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import SignDocument from '../SignaturePad/SignaturePad';
 
 function SignPage() {
   const { filename } = useParams<{ filename: string }>();
-  const [showSigner, setShowSigner] = useState(false);
+  const [showSigner, setShowSigner] = useState(true); // <-- שורה זו שונתה
 
   const fileUrl = `https://automation-project-server.onrender.com/uploads/${filename}`;
   console.log(fileUrl);
@@ -72,10 +71,18 @@ function SignPage() {
 
   return (
     <div className="container mt-5 text-center">
-      {!showSigner ? (
+      {showSigner ? (
+        <SignDocument
+          fileUrl={fileUrl}
+          onSigned={(signedBlob) => {
+            console.log("חתום בהצלחה", signedBlob);
+            // אפשר גם setDone או שליחה למייל
+          }}
+        />
+      ) : (
         <>
           <h2>לצפייה וחתימה על המסמך</h2>
-          {/* <a
+          <a
             href="#"
             className="btn btn-primary"
             onClick={(e) => {
@@ -84,27 +91,8 @@ function SignPage() {
             }}
           >
             לחץ כאן לפתיחת המסמך
-          </a> */}
-          <a
-            href="#"
-            onClick={(e) => {
-              e.preventDefault();
-              setShowSigner(true);
-            }}
-            style={{ fontSize: '1.2rem', textDecoration: 'underline', cursor: 'pointer' }}
-          >
-            {fileUrl}
           </a>
-
         </>
-      ) : (
-        <SignDocument
-          fileUrl={fileUrl}
-          onSigned={(signedBlob) => {
-            console.log("חתום בהצלחה", signedBlob);
-            // אפשר גם setDone או שליחה למייל
-          }}
-        />
       )}
     </div>
   );
