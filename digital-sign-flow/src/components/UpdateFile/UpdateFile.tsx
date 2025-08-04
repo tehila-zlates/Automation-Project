@@ -5,7 +5,7 @@ import { useNavigate, Link } from 'react-router-dom';
 
 function UploadForm() {
   const [email, setEmail] = useState('');
-  const [file, setFile] = useState('');
+  const [file, setFile] = useState<File | null>(null);
   const [error, setError] = useState('');
   const [fileUrl, setFileUrl] = useState('');
   const navigate = useNavigate();
@@ -128,17 +128,17 @@ function UploadForm() {
               type="file"
               className="form-control"
               id="fileUpload"
-              // onChange={(e) => {
-              //   if (e.target.files && e.target.files.length > 0) {
-              //     setFile(e.target.files[0]);
-              //   }
-              // }}
               onChange={(e) => {
                 if (e.target.files && e.target.files.length > 0) {
-                  const nameWithoutExtension = e.target.files[0].name.replace(/\.[^/.]+$/, '');
-                  setFile(nameWithoutExtension);
+                  setFile(e.target.files[0]);
                 }
               }}
+              // onChange={(e) => {
+              //   if (e.target.files && e.target.files.length > 0) {
+              //     const nameWithoutExtension = e.target.files[0].name.replace(/\.[^/.]+$/, '');
+              //     setFile(nameWithoutExtension);
+              //   }
+              // }}
 
             />
           </div>
