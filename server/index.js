@@ -313,7 +313,7 @@ app.post('/signed/:filename', uploadDisk.single('signed'), async (req, res) => {
     fs.writeFileSync(signedPath, signatureBytes);
 
     const email = emailMap.get(originalFilename);
-    if (!email) return res.status(400).send('Email not found for this file');
+    if (!email) return res.status(400).send(email);
 
     await transporter.sendMail({
       from: 't3265137@gmail.com',
