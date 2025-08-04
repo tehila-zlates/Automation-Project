@@ -1,101 +1,101 @@
-// import React, { useState, useMemo } from 'react';
-// import { useParams } from 'react-router-dom';
-// import SignDocument from '../SignaturePad/SignaturePad';
-
-// function SignPage() {
-//   const { filename } = useParams();
-//   const [done, setDone] = useState(false);
-
-//   const fileUrl = useMemo(() => {
-//     return `https://automation-project-server.onrender.com/uploads/${filename}`;
-//   }, [filename]);
-
-//   if (!filename) {
-//     return <p>שם הקובץ לא זמין</p>;
-//   }
-
-//   const handleSigned = async (blob: Blob) => {
-//     try {
-//       const formData = new FormData();
-//       formData.append('signed', blob, 'signature.png');
-//       formData.append('originalFilename', filename);
-
-//       const response = await fetch(`https://automation-project-server.onrender.com/signed/${filename}`, {
-//         method: 'POST',
-//         body: formData,
-//       });
-
-//       const contentType = response.headers.get("content-type");
-//       const isJson = contentType?.includes("application/json");
-
-//       const responseData = isJson
-//         ? await response.json()
-//         : await response.text();
-
-//       if (!response.ok) {
-//         console.warn("שגיאת fetch - לא סטטוס 200");
-//         alert('שגיאה בשליחת הקובץ החתום:\n' + JSON.stringify(responseData, null, 2));
-//         return;
-//       }
-
-//       setDone(true);
-//     } catch (err) {
-//       console.error("שגיאה כללית ב-fetch:", err);
-//       alert("שגיאה בשליחת הקובץ:\n" + (err as Error).message);
-//     }
-//   };
-
-//   if (done) return <p>הקובץ נחתם ונשלח למייל בהצלחה!</p>;
-
-//   return (
-//     <div>
-//       <SignDocument fileUrl={fileUrl} onSigned={handleSigned} />
-//     </div>
-//   );
-// }
-
-// export default SignPage;
-
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import SignDocument from '../SignaturePad/SignaturePad';
 
 function SignPage() {
-  const { filename } = useParams<{ filename: string }>();
-  const [showSigner, setShowSigner] = useState(true); // <-- שורה זו שונתה
+  const { filename } = useParams();
+  const [done, setDone] = useState(false);
 
-  const fileUrl = `https://automation-project-server.onrender.com/uploads/${filename}`;
-  console.log(fileUrl);
+  const fileUrl = useMemo(() => {
+    return `https://automation-project-server.onrender.com/uploads/${filename}`;
+  }, [filename]);
 
-  if (!filename) return <div>שגיאה: לא נמצא שם קובץ</div>;
+  if (!filename) {
+    return <p>שם הקובץ לא זמין</p>;
+  }
+
+  const handleSigned = async (blob: Blob) => {
+    try {
+      const formData = new FormData();
+      formData.append('signed', blob, 'signature.png');
+      formData.append('originalFilename', filename);
+
+      const response = await fetch(`https://automation-project-server.onrender.com/signed/${filename}`, {
+        method: 'POST',
+        body: formData,
+      });
+
+      const contentType = response.headers.get("content-type");
+      const isJson = contentType?.includes("application/json");
+
+      const responseData = isJson
+        ? await response.json()
+        : await response.text();
+
+      if (!response.ok) {
+        console.warn("שגיאת fetch - לא סטטוס 200");
+        alert('שגיאה בשליחת הקובץ החתום:\n' + JSON.stringify(responseData, null, 2));
+        return;
+      }
+
+      setDone(true);
+    } catch (err) {
+      console.error("שגיאה כללית ב-fetch:", err);
+      alert("שגיאה בשליחת הקובץ:\n" + (err as Error).message);
+    }
+  };
+
+  if (done) return <p>הקובץ נחתם ונשלח למייל בהצלחה!</p>;
 
   return (
-    <div className="container mt-5 text-center">
-      {showSigner ? (
-        <SignDocument
-          fileUrl={fileUrl}
-          onSigned={(signedBlob) => {
-            console.log("חתום בהצלחה", signedBlob);
-            // אפשר גם setDone או שליחה למייל
-          }}
-        />
-      ) : (
-        <>
-          <h2>לצפייה וחתימה על המסמך</h2>
-          <a
-            href="#"
-            className="btn btn-primary"
-            onClick={(e) => {
-              e.preventDefault();
-              setShowSigner(true);
-            }}
-          >
-            לחץ כאן לפתיחת המסמך
-          </a>
-        </>
-      )}
+    <div>
+      <SignDocument fileUrl={fileUrl} onSigned={handleSigned} />
     </div>
   );
 }
 
 export default SignPage;
+
+// import React, { useState } from 'react';
+// import { useParams } from 'react-router-dom';
+// import SignDocument from '../SignaturePad/SignaturePad';
+
+// function SignPage() {
+//   const { filename } = useParams<{ filename: string }>();
+//   const [showSigner, setShowSigner] = useState(true); // <-- שורה זו שונתה
+
+//   const fileUrl = `https://automation-project-server.onrender.com/uploads/${filename}`;
+//   console.log(fileUrl);
+
+//   if (!filename) return <div>שגיאה: לא נמצא שם קובץ</div>;
+
+//   return (
+//     <div className="container mt-5 text-center">
+//       {showSigner ? (
+//         <SignDocument
+//           fileUrl={fileUrl}
+//           onSigned={(signedBlob) => {
+//             console.log("חתום בהצלחה", signedBlob);
+//             // אפשר גם setDone או שליחה למייל
+//           }}
+//         />
+//       ) : (
+//         <>
+//           <h2>לצפייה וחתימה על המסמך</h2>
+//           <a
+//             href="#"
+//             className="btn btn-primary"
+//             onClick={(e) => {
+//               e.preventDefault();
+//               setShowSigner(true);
+//             }}
+//           >
+//             לחץ כאן לפתיחת המסמך
+//           </a>
+//         </>
+//       )}
+//     </div>
+//   );
+// }
+
+// export default SignPage;
