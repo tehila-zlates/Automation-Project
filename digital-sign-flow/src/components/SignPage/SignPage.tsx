@@ -20,7 +20,7 @@ function SignPage() {
       formData.append('signed', blob, 'signature.png');
       formData.append('originalFilename', filename);
 
-      const response = await fetch(`https://automation-project-server.onrender.com/signed/${filename}`, {
+      const response = await fetch(`https://automation-project-server.onrender.com/signed/${filename}.pdf`, {
         method: 'POST',
         body: formData,
       });
