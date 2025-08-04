@@ -91,7 +91,6 @@ app.post('/upload', uploadMemory.single('file'), async (req, res) => {
     const { email } = req.body;
     if (!file || !email) return res.status(400).send('Missing file or email');
 
-    // צור תיקיית uploads אם לא קיימת
     const uploadsDir = path.join(__dirname, 'uploads');
     if (!fs.existsSync(uploadsDir)) {
       fs.mkdirSync(uploadsDir);
@@ -101,16 +100,16 @@ app.post('/upload', uploadMemory.single('file'), async (req, res) => {
     let uploadPath;
 
     if (file.mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
-      // שמור את קובץ ה-docx זמנית בדיסק
+      // שמירת קובץ docx זמני
       const tempDocxName = Date.now() + '-' + file.originalname;
       const tempDocxPath = path.join(uploadsDir, tempDocxName);
       fs.writeFileSync(tempDocxPath, file.buffer);
 
-      // שם הקובץ הסופי ב-PDF
+      // שם הקובץ PDF שיווצר
       finalFilename = tempDocxName.replace(/\.docx$/, '.pdf');
       uploadPath = path.join(uploadsDir, finalFilename);
 
-      // הפעלת פקודת LibreOffice להמרת ה-docx ל-PDF
+      // הפעלת הפקודה להמרה ל-PDF עם LibreOffice
       await new Promise((resolve, reject) => {
         const command = `soffice --headless --convert-to pdf --outdir "${uploadsDir}" "${tempDocxPath}"`;
         exec(command, (error, stdout, stderr) => {
@@ -123,14 +122,13 @@ app.post('/upload', uploadMemory.single('file'), async (req, res) => {
         });
       });
 
-      // מחק את קובץ ה-docx הזמני
+      // מחיקת הקובץ הזמני docx
       fs.unlinkSync(tempDocxPath);
 
-      // וידוא שה-PDF נוצר
+      // בדיקה שה-PDF נוצר
       if (!fs.existsSync(uploadPath)) {
         return res.status(500).send('Conversion to PDF failed');
       }
-
     } else if (file.mimetype === 'application/pdf') {
       finalFilename = Date.now() + '-' + file.originalname;
       uploadPath = path.join(uploadsDir, finalFilename);
@@ -146,15 +144,10 @@ app.post('/upload', uploadMemory.single('file'), async (req, res) => {
       signPageUrl: `https://automation-digital-sign-flow.onrender.com/sign/${finalFilename}`,
       filename: finalFilename
     });
-
   } catch (err) {
     console.error("Upload error:", err);
     res.status(500).send('Internal Server Error');
   }
-});
-
-app.listen(3001, () => {
-  console.log('Server listening on port 3001');
 });
 
 app.post('/signed/:filename', uploadDisk.single('signed'), async (req, res) => {
