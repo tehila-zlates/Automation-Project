@@ -133,13 +133,6 @@ function UploadForm() {
                   setFile(e.target.files[0]);
                 }
               }}
-              // onChange={(e) => {
-              //   if (e.target.files && e.target.files.length > 0) {
-              //     const nameWithoutExtension = e.target.files[0].name.replace(/\.[^/.]+$/, '');
-              //     setFile(nameWithoutExtension);
-              //   }
-              // }}
-
             />
           </div>
           {error && (
