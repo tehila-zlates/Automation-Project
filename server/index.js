@@ -40,7 +40,7 @@ app.post('/upload', uploadMemory.single('file'), async (req, res) => {
     const { email } = req.body;
     if (!file || !email) return res.status(400).send('Missing file or email');
 
-    let finalFilename = '-' + Date.now();
+    let finalFilename = Date.now().toString();
     const uploadPath = path.join(__dirname, 'uploads', finalFilename);
 
     if (file.mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
