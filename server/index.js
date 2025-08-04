@@ -150,7 +150,77 @@ const transporter = nodemailer.createTransport({
 //     res.status(500).send('Internal Server Error');
 //   }
 // });
-const cloudConvert = new CloudConvert('eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiMDAzODk5ZmMzNjBkYzA2MDM2ZmNhODJhMGUyZmFlZjlmNjEyNmQzODRhNWJhOGYyOWI3YmM0ODFiMTFkOTQ3YTA1ODQ5ZThkMzkwNjU0MzEiLCJpYXQiOjE3NTQzMTMxNzYuOTI5OTExLCJuYmYiOjE3NTQzMTMxNzYuOTI5OTEyLCJleHAiOjQ5MDk5ODY3NzYuOTI1MTQyLCJzdWIiOiI3MjU2NDgyMCIsInNjb3BlcyI6WyJ1c2VyLnJlYWQiLCJ1c2VyLndyaXRlIiwidGFzay5yZWFkIiwidGFzay53cml0ZSIsIndlYmhvb2sucmVhZCIsIndlYmhvb2sud3JpdGUiLCJwcmVzZXQucmVhZCIsInByZXNldC53cml0ZSJdfQ.foQ4RKiDidHX7vZeHLW0z1_gG5XrvlZJPuHmbhrvDcmIBlWmMqe7p0Xq2aO8zebgJeLt7HQjVKoFYTlsZYHGqIf0AyCp6Ozvou85dfZU4C_fG-2K_AbnFkt8mbtVZZFNZwF31j6eu6Qcx2KDMK0oH8BNA0OEhRTfJSp_Y6eqI1wCMJctBZXBmZNQ7Kqy_c9l_9OQoxJUkcONONF_Tp2nTggOk03YGXXKe0XTC-IbNTMRX42glE4Fq1bRY-MU0df4v8C1BjBEhtU72ZQ6-2w9otXJeE4jBWhgi0NGXizt68klynLSVGoFGneCwwiWFt3AxVm6Zuhp36qbjJVfwHzSEmm5EicKZCVQ65Zc-GWfsgJCoCj3JLHMOa4Kar5NIrcyVvTekaQmJ_uOyQ10HxSZrnrRGqvcPzKp6lV6RZmeqjZ0aLrVp9gFn1NPcE25X6-VRkLeu5xV4ULOG-WbM-jVu3FdaXPgLlOlOjYuU8encX6TIMk9g-ATT_QSkhBFqhpLNc4Ox2uKZZtAe6iTfA0VwnaQqjzRhvifa9GC9Rkc_0Ox_6Nw_pRxSSEO1ewp7GLld2VLxhteUI4H4PMihpQvnQuskOWc3ewNkO7vR5YU6hYObwWRR8A5nTTvrbEev5-731Z5hg3p5RKwnW2XfnqEsjnDdTzWkYZuqRk_oJ_1Iyc');
+// const cloudConvert = new CloudConvert('eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiMDAzODk5ZmMzNjBkYzA2MDM2ZmNhODJhMGUyZmFlZjlmNjEyNmQzODRhNWJhOGYyOWI3YmM0ODFiMTFkOTQ3YTA1ODQ5ZThkMzkwNjU0MzEiLCJpYXQiOjE3NTQzMTMxNzYuOTI5OTExLCJuYmYiOjE3NTQzMTMxNzYuOTI5OTEyLCJleHAiOjQ5MDk5ODY3NzYuOTI1MTQyLCJzdWIiOiI3MjU2NDgyMCIsInNjb3BlcyI6WyJ1c2VyLnJlYWQiLCJ1c2VyLndyaXRlIiwidGFzay5yZWFkIiwidGFzay53cml0ZSIsIndlYmhvb2sucmVhZCIsIndlYmhvb2sud3JpdGUiLCJwcmVzZXQucmVhZCIsInByZXNldC53cml0ZSJdfQ.foQ4RKiDidHX7vZeHLW0z1_gG5XrvlZJPuHmbhrvDcmIBlWmMqe7p0Xq2aO8zebgJeLt7HQjVKoFYTlsZYHGqIf0AyCp6Ozvou85dfZU4C_fG-2K_AbnFkt8mbtVZZFNZwF31j6eu6Qcx2KDMK0oH8BNA0OEhRTfJSp_Y6eqI1wCMJctBZXBmZNQ7Kqy_c9l_9OQoxJUkcONONF_Tp2nTggOk03YGXXKe0XTC-IbNTMRX42glE4Fq1bRY-MU0df4v8C1BjBEhtU72ZQ6-2w9otXJeE4jBWhgi0NGXizt68klynLSVGoFGneCwwiWFt3AxVm6Zuhp36qbjJVfwHzSEmm5EicKZCVQ65Zc-GWfsgJCoCj3JLHMOa4Kar5NIrcyVvTekaQmJ_uOyQ10HxSZrnrRGqvcPzKp6lV6RZmeqjZ0aLrVp9gFn1NPcE25X6-VRkLeu5xV4ULOG-WbM-jVu3FdaXPgLlOlOjYuU8encX6TIMk9g-ATT_QSkhBFqhpLNc4Ox2uKZZtAe6iTfA0VwnaQqjzRhvifa9GC9Rkc_0Ox_6Nw_pRxSSEO1ewp7GLld2VLxhteUI4H4PMihpQvnQuskOWc3ewNkO7vR5YU6hYObwWRR8A5nTTvrbEev5-731Z5hg3p5RKwnW2XfnqEsjnDdTzWkYZuqRk_oJ_1Iyc');
+
+// app.post('/upload', uploadMemory.single('file'), async (req, res) => {
+//   try {
+//     const { file } = req;
+//     const { email } = req.body;
+//     if (!file || !email) return res.status(400).send('Missing file or email');
+
+//     let finalFilename = Date.now() + '.pdf';
+//     const uploadPath = path.join(__dirname, 'uploads', finalFilename);
+
+//     if (file.mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+//       // יצירת Job להמרת DOCX ל־PDF
+//       const job = await cloudConvert.jobs.create({
+//         tasks: {
+//           'upload-file': {
+//             operation: 'import/base64',
+//             file: file.buffer.toString('base64'),
+//             filename: file.originalname
+//           },
+//           'convert-file': {
+//             operation: 'convert',
+//             input: 'upload-file',
+//             input_format: 'docx',
+//             output_format: 'pdf'
+//           },
+//           'export-file': {
+//             operation: 'export/url',
+//             input: 'convert-file'
+//           }
+//         }
+//       });
+
+//       // המתנה לסיום המשימות
+//       const completedJob = await cloudConvert.jobs.wait(job.id);
+
+//       const exportTask = completedJob.tasks.find(
+//         task => task.name === 'export-file' && task.status === 'finished'
+//       );
+
+//       if (!exportTask || !exportTask.result || !exportTask.result.files || exportTask.result.files.length === 0) {
+//         return res.status(500).send('Conversion failed - no result');
+//       }
+
+//       const fileUrl = exportTask.result.files[0].url;
+//       const pdfBuffer = await fetch(fileUrl).then(r => r.arrayBuffer());
+//       fs.writeFileSync(uploadPath, Buffer.from(pdfBuffer));
+
+//     } else if (file.mimetype === 'application/pdf') {
+//       finalFilename = Date.now() + '-' + file.originalname;
+//       fs.writeFileSync(path.join(__dirname, 'uploads', finalFilename), file.buffer);
+//     } else {
+//       return res.status(400).send('Unsupported file type');
+//     }
+
+//     emailMap.set(finalFilename, email);
+
+//     res.json({
+//       fileUrl: `https://automation-project-server.onrender.com/uploads/${finalFilename}`,
+//       signPageUrl: `https://automation-digital-sign-flow.onrender.com/sign/${finalFilename}`,
+//       filename: finalFilename
+//     });
+
+//   } catch (err) {
+//     console.error("Upload error:", err);
+//     res.status(500).send('Internal Server Error');
+//   }
+// });
+const { execFile } = require('child_process');
+const path = require('path');
+const fs = require('fs');
 
 app.post('/upload', uploadMemory.single('file'), async (req, res) => {
   try {
@@ -158,50 +228,46 @@ app.post('/upload', uploadMemory.single('file'), async (req, res) => {
     const { email } = req.body;
     if (!file || !email) return res.status(400).send('Missing file or email');
 
-    let finalFilename = Date.now() + '.pdf';
-    const uploadPath = path.join(__dirname, 'uploads', finalFilename);
+    // שמירת הקובץ הזמני לפני המרה
+    const tempInputPath = path.join(__dirname, 'uploads', Date.now() + '-' + file.originalname);
+    fs.writeFileSync(tempInputPath, file.buffer);
+
+    let finalFilename;
+    let finalPath;
 
     if (file.mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
-      // יצירת Job להמרת DOCX ל־PDF
-      const job = await cloudConvert.jobs.create({
-        tasks: {
-          'upload-file': {
-            operation: 'import/base64',
-            file: file.buffer.toString('base64'),
-            filename: file.originalname
-          },
-          'convert-file': {
-            operation: 'convert',
-            input: 'upload-file',
-            input_format: 'docx',
-            output_format: 'pdf'
-          },
-          'export-file': {
-            operation: 'export/url',
-            input: 'convert-file'
+      // המרת DOCX ל-PDF עם LibreOffice (soffice)
+      // שים לב ש-soffice צריך להיות מותקן וזמין בשרת
+      const outputDir = path.join(__dirname, 'uploads');
+      await new Promise((resolve, reject) => {
+        execFile('soffice', [
+          '--headless',
+          '--convert-to', 'pdf',
+          '--outdir', outputDir,
+          tempInputPath
+        ], (error, stdout, stderr) => {
+          if (error) {
+            console.error('LibreOffice conversion error:', error, stderr);
+            return reject(error);
           }
-        }
+          resolve();
+        });
       });
 
-      // המתנה לסיום המשימות
-      const completedJob = await cloudConvert.jobs.wait(job.id);
+      // שם הקובץ המומר הוא כמו שם הקובץ המקורי עם סיומת pdf
+      finalFilename = path.basename(tempInputPath, path.extname(tempInputPath)) + '.pdf';
+      finalPath = path.join(__dirname, 'uploads', finalFilename);
 
-      const exportTask = completedJob.tasks.find(
-        task => task.name === 'export-file' && task.status === 'finished'
-      );
-
-      if (!exportTask || !exportTask.result || !exportTask.result.files || exportTask.result.files.length === 0) {
-        return res.status(500).send('Conversion failed - no result');
-      }
-
-      const fileUrl = exportTask.result.files[0].url;
-      const pdfBuffer = await fetch(fileUrl).then(r => r.arrayBuffer());
-      fs.writeFileSync(uploadPath, Buffer.from(pdfBuffer));
+      // אפשר למחוק את הקובץ המקורי אחרי המרה אם רוצים
+      fs.unlinkSync(tempInputPath);
 
     } else if (file.mimetype === 'application/pdf') {
       finalFilename = Date.now() + '-' + file.originalname;
-      fs.writeFileSync(path.join(__dirname, 'uploads', finalFilename), file.buffer);
+      finalPath = path.join(__dirname, 'uploads', finalFilename);
+      fs.writeFileSync(finalPath, file.buffer);
     } else {
+      // תמיכה רק ב-DOCX ו-PDF
+      fs.unlinkSync(tempInputPath);
       return res.status(400).send('Unsupported file type');
     }
 
