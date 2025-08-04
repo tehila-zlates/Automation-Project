@@ -7,7 +7,7 @@ function SignPage() {
   const [done, setDone] = useState(false);
 
   const fileUrl = useMemo(() => {
-    return `https://automation-project-server.onrender.com/uploads/${filename}`;
+    return `https://automation-project-server.onrender.com/uploads/${filename}.pdf`;
   }, [filename]);
 
   if (!filename) {
@@ -20,7 +20,7 @@ function SignPage() {
       formData.append('signed', blob, 'signature.png');
       formData.append('originalFilename', filename);
 
-      const response = await fetch(`https://automation-project-server.onrender.com/signed/${filename}.pdf`, {
+      const response = await fetch(`https://automation-project-server.onrender.com/signed/${filename}`, {
         method: 'POST',
         body: formData,
       });
