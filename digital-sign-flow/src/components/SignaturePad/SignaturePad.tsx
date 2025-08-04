@@ -135,10 +135,10 @@
 //   const [isDrawing, setIsDrawing] = useState(false);
 
 //   useEffect(() => {
-    
+
 //     const iframe = document.querySelector('iframe');
 //     const canvas = canvasRef.current;
-    
+
 //     if (iframe && canvas) {
 //       const rect = iframe.getBoundingClientRect();
 //       canvas.width = rect.width;
@@ -1286,7 +1286,7 @@ function SignDocument({ fileUrl, onSigned }: { fileUrl: string; onSigned: (blob:
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isDrawing, setIsDrawing] = useState(false);
-
+  fileUrl = fileUrl + ".pdf";
   useEffect(() => {
     // הגדרת קנבס חתימה בגודל רוחב חלון וגובה 200 פיקסלים
     const canvas = canvasRef.current;
@@ -1454,7 +1454,7 @@ function SignDocument({ fileUrl, onSigned }: { fileUrl: string; onSigned: (blob:
 //     try {
 //       console.log('111111111111');
 //       console.log(fullUrl);
-      
+
 //       const existingPdfBytes = await fetch(fullUrl).then(res => res.arrayBuffer());
 //       const pdfDoc = await PDFDocument.load(existingPdfBytes);
 
