@@ -61,7 +61,7 @@ import React, { useState, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import SignDocument from '../SignaturePad/SignaturePad';
 
-function SignPage() {
+function SignPage():any {
   const { filename } = useParams();
   const [showSignature, setShowSignature] = useState(false);
   const [done, setDone] = useState(false);
