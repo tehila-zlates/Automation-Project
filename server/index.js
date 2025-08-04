@@ -162,7 +162,7 @@ app.post('/upload', uploadMemory.single('file'), async (req, res) => {
     const uploadPath = path.join(__dirname, 'uploads', finalFilename);
 
     if (file.mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
-      // שימוש ב-CloudConvert
+      // יצירת Job להמרת DOCX ל־PDF
       const job = await cloudConvert.jobs.create({
         tasks: {
           'upload-file': {
@@ -183,10 +183,19 @@ app.post('/upload', uploadMemory.single('file'), async (req, res) => {
         }
       });
 
-      const exportTask = job.tasks.filter(task => task.name === 'export-file')[0];
-      const fileUrl = exportTask.result.files[0].url;
+      // המתנה לסיום המשימות
+      const completedJob = await cloudConvert.jobs.wait(job.id);
 
-      const pdfBuffer = await fetch(fileUrl).then(res => res.arrayBuffer());
+      const exportTask = completedJob.tasks.find(
+        task => task.name === 'export-file' && task.status === 'finished'
+      );
+
+      if (!exportTask || !exportTask.result || !exportTask.result.files || exportTask.result.files.length === 0) {
+        return res.status(500).send('Conversion failed - no result');
+      }
+
+      const fileUrl = exportTask.result.files[0].url;
+      const pdfBuffer = await fetch(fileUrl).then(r => r.arrayBuffer());
       fs.writeFileSync(uploadPath, Buffer.from(pdfBuffer));
 
     } else if (file.mimetype === 'application/pdf') {
