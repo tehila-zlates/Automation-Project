@@ -11,81 +11,42 @@ function UploadForm() {
   const navigate = useNavigate();
 
   const validateEmail = (email: string) => validator.isEmail(email);
-  // const handleSubmit = async (e: any) => {
-  //   e.preventDefault();
-  //   if (!validateEmail(email)) {
-  //     setError("כתובת המייל לא תקינה");
-  //     return;
-  //   }
-  //   if (!file) {
-  //     setError('יש לבחור קובץ');
-  //     return;
-  //   }
-  //   const formData = new FormData();
-  //   formData.append('email', email);
-  //   formData.append('file', file);
-
-  //   try {
-  //     const res = await fetch('https://automation-project-server.onrender.com/upload', {
-  //       method: 'POST',
-  //       body: formData,
-  //     });
-
-  //     const data = await res.json();
-  //     console.log(data);
-
-  //     if (res.ok) {
-  //       setFileUrl(data.filename);
-  //     } else {
-  //       alert(data.message || 'Error uploading file');
-  //     }
-  //   } catch (err) {
-  //     console.error(err);
-  //     alert('Upload failed');
-  //   }
-  // };
-  // const toSignPage = () => {
-  //   navigate(`/sign/${fileUrl}`);
-  // };
   const handleSubmit = async (e: any) => {
-  e.preventDefault();
-  setError('');
-
-  if (!validateEmail(email)) {
-    setError("כתובת המייל לא תקינה");
-    return;
-  }
-
-  if (!file) {
-    setError('יש לבחור קובץ');
-    return;
-  }
-
-  const formData = new FormData();
-  formData.append('email', email);
-  formData.append('file', file);
-
-  try {
-    const res = await fetch('https://automation-project-server.onrender.com/upload', {
-      method: 'POST',
-      body: formData,
-    });
-
-    const data = await res.json();
-    console.log(data);
-
-    if (res.ok) {
-      // שלח בהצלחה → ניתוב אוטומטי
-      navigate(`/sign/${encodeURIComponent(data.filename)}`);
-    } else {
-      setError(data.message || 'שגיאה בהעלאה');
+    e.preventDefault();
+    if (!validateEmail(email)) {
+      setError("כתובת המייל לא תקינה");
+      return;
     }
-  } catch (err) {
-    console.error(err);
-    setError('שליחת הקובץ נכשלה');
-  }
-};
+    if (!file) {
+      setError('יש לבחור קובץ');
+      return;
+    }
+    const formData = new FormData();
+    formData.append('email', email);
+    formData.append('file', file);
 
+    try {
+      const res = await fetch('https://automation-project-server.onrender.com/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const data = await res.json();
+      console.log(data);
+
+      if (res.ok) {
+        setFileUrl(data.filename);
+      } else {
+        alert(data.message || 'Error uploading file');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Upload failed');
+    }
+  };
+  const toSignPage = () => {
+    navigate(`/sign/${fileUrl}`);
+  };
   return (
     <div>
       <h2>העלאת מסמך</h2>
@@ -123,14 +84,14 @@ function UploadForm() {
           שלח
         </button>
       </form>
-      {/* {fileUrl && (
+      {fileUrl && (
         <button className="btn btn-success mt-2" onClick={toSignPage}>
           סיום חתימה ושליחה
         </button>
 //         <a href={`/sign/${encodeURIComponent(fileUrl)}`} target="_blank" rel="noopener noreferrer">
 //   לצפייה בקובץ ולחתימה
 // </a>
-      )} */}
+      )}
     </div>
   );
 }

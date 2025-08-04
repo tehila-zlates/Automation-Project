@@ -45,24 +45,13 @@ function SignPage() {
     }
   };
 
-  // if (done) return <p>הקובץ נחתם ונשלח למייל בהצלחה!</p>;
+  if (done) return <p>הקובץ נחתם ונשלח למייל בהצלחה!</p>;
 
-  // return (
-  //   <div>
-  //     <SignDocument fileUrl={fileUrl} onSigned={handleSigned} />
-  //   </div>
-  // );
-  if (done) {
-  const fullLink = `${window.location.origin}/sign/${filename}`;
   return (
     <div>
-      <p>הקובץ נחתם ונשלח למייל בהצלחה!</p>
-      <p>לשליחה או שיתוף הקישור:</p>
-      <a href={fullLink} target="_blank" rel="noopener noreferrer">{fullLink}</a>
+      <SignDocument fileUrl={fileUrl} onSigned={handleSigned} />
     </div>
   );
-}
-
 }
 
 export default SignPage;
