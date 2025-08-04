@@ -219,8 +219,6 @@ const transporter = nodemailer.createTransport({
 //   }
 // });
 const { execFile } = require('child_process');
-const path = require('path');
-const fs = require('fs');
 
 app.post('/upload', uploadMemory.single('file'), async (req, res) => {
   try {
