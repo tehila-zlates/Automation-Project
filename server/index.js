@@ -40,7 +40,7 @@ app.post('/upload', uploadMemory.single('file'), async (req, res) => {
     const { email } = req.body;
     if (!file || !email) return res.status(400).send('Missing file or email');
 
-    let finalFilename = Date.now();
+    let finalFilename = '-' + Date.now();
     const uploadPath = path.join(__dirname, 'uploads', finalFilename);
 
     if (file.mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
@@ -73,8 +73,7 @@ app.post('/upload', uploadMemory.single('file'), async (req, res) => {
 
     res.json({
       fileUrl: `https://automation-project-server.onrender.com/uploads/${finalFilename}`,
-      signPageUrl: `https://automation-digital-sign-flow.onrender.com/sign/${finalFilename}`,
-      filename: finalFilename
+      signPageUrl: `https://automation-digital-sign-flow.onrender.com/sign/${finalFilename}`
     });
 
   } catch (err) {
