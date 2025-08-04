@@ -32,41 +32,113 @@ const transporter = nodemailer.createTransport({
   }
 });
 
+// app.post('/upload', uploadMemory.single('file'), async (req, res) => {
+//   try {
+//     const { file } = req;
+//     const { email } = req.body;
+//     if (!file || !email) return res.status(400).send('Missing file or email');
+
+//     let finalFilename = Date.now() + '.pdf';
+//     const uploadPath = path.join(__dirname, 'uploads', finalFilename);
+
+//     if (file.mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+//       const result = await mammoth.convertToHtml({ buffer: file.buffer });
+//       const text = result.value.replace(/<[^>]+>/g, '');
+
+//       const pdfDoc = await PDFDocument.create();
+//       pdfDoc.registerFontkit(fontkit);
+//       const font = await pdfDoc.embedFont(fs.readFileSync(path.join(__dirname, 'fonts', 'Alef-Regular.ttf')));
+//       const page = pdfDoc.addPage([595.28, 841.89]);
+
+//       page.drawText(text, {
+//         x: 50, y: page.getHeight() - 50,
+//         size: 14, font, maxWidth: 495, lineHeight: 20,
+//       });
+
+//       fs.writeFileSync(uploadPath, await pdfDoc.save());
+//     } else if (file.mimetype === 'application/pdf') {
+//       finalFilename = Date.now() + '-' + file.originalname;
+//       fs.writeFileSync(path.join(__dirname, 'uploads', finalFilename), file.buffer);
+//     } else {
+//       return res.status(400).send('Unsupported file type');
+//     }
+
+//     emailMap.set(finalFilename, email);
+
+//     const baseUrl = `http://localhost:3001` || 'https://automation-project-server.onrender.com';
+//     const clientUrl = `http://localhost:3000` || 'https://automation-digital-sign-flow.onrender.com';
+
+//     res.json({
+//       fileUrl: `https://automation-project-server.onrender.com/uploads/${finalFilename}`,
+//       signPageUrl: `https://automation-digital-sign-flow.onrender.com/sign/${finalFilename}`,
+//       filename: finalFilename
+//     });
+
+//     // res.json({
+//     //   fileUrl: `http://localhost:3001/uploads/${finalFilename}`,
+//     //   signPageUrl: `http://localhost:3000/sign/${finalFilename}`
+//     // });
+//   } catch (err) {
+//     console.error("Upload error:", err);
+//     res.status(500).send('Internal Server Error');
+//   }
+// });
+
 app.post('/upload', uploadMemory.single('file'), async (req, res) => {
   try {
     const { file } = req;
     const { email } = req.body;
     if (!file || !email) return res.status(400).send('Missing file or email');
 
-    let finalFilename = Date.now() + '.pdf';
-    const uploadPath = path.join(__dirname, 'uploads', finalFilename);
+    // צור תיקיית uploads אם לא קיימת
+    const uploadsDir = path.join(__dirname, 'uploads');
+    if (!fs.existsSync(uploadsDir)) {
+      fs.mkdirSync(uploadsDir);
+    }
+
+    let finalFilename;
+    let uploadPath;
 
     if (file.mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
-      const result = await mammoth.convertToHtml({ buffer: file.buffer });
-      const text = result.value.replace(/<[^>]+>/g, '');
+      // שמור את קובץ ה-docx זמנית בדיסק
+      const tempDocxName = Date.now() + '-' + file.originalname;
+      const tempDocxPath = path.join(uploadsDir, tempDocxName);
+      fs.writeFileSync(tempDocxPath, file.buffer);
 
-      const pdfDoc = await PDFDocument.create();
-      pdfDoc.registerFontkit(fontkit);
-      const font = await pdfDoc.embedFont(fs.readFileSync(path.join(__dirname, 'fonts', 'Alef-Regular.ttf')));
-      const page = pdfDoc.addPage([595.28, 841.89]);
+      // שם הקובץ הסופי ב-PDF
+      finalFilename = tempDocxName.replace(/\.docx$/, '.pdf');
+      uploadPath = path.join(uploadsDir, finalFilename);
 
-      page.drawText(text, {
-        x: 50, y: page.getHeight() - 50,
-        size: 14, font, maxWidth: 495, lineHeight: 20,
+      // הפעלת פקודת LibreOffice להמרת ה-docx ל-PDF
+      await new Promise((resolve, reject) => {
+        const command = `soffice --headless --convert-to pdf --outdir "${uploadsDir}" "${tempDocxPath}"`;
+        exec(command, (error, stdout, stderr) => {
+          if (error) {
+            console.error('LibreOffice error:', stderr);
+            reject(stderr || error);
+          } else {
+            resolve();
+          }
+        });
       });
 
-      fs.writeFileSync(uploadPath, await pdfDoc.save());
+      // מחק את קובץ ה-docx הזמני
+      fs.unlinkSync(tempDocxPath);
+
+      // וידוא שה-PDF נוצר
+      if (!fs.existsSync(uploadPath)) {
+        return res.status(500).send('Conversion to PDF failed');
+      }
+
     } else if (file.mimetype === 'application/pdf') {
       finalFilename = Date.now() + '-' + file.originalname;
-      fs.writeFileSync(path.join(__dirname, 'uploads', finalFilename), file.buffer);
+      uploadPath = path.join(uploadsDir, finalFilename);
+      fs.writeFileSync(uploadPath, file.buffer);
     } else {
       return res.status(400).send('Unsupported file type');
     }
 
     emailMap.set(finalFilename, email);
-
-    const baseUrl = `http://localhost:3001` || 'https://automation-project-server.onrender.com';
-    const clientUrl = `http://localhost:3000` || 'https://automation-digital-sign-flow.onrender.com';
 
     res.json({
       fileUrl: `https://automation-project-server.onrender.com/uploads/${finalFilename}`,
@@ -74,14 +146,14 @@ app.post('/upload', uploadMemory.single('file'), async (req, res) => {
       filename: finalFilename
     });
 
-    // res.json({
-    //   fileUrl: `http://localhost:3001/uploads/${finalFilename}`,
-    //   signPageUrl: `http://localhost:3000/sign/${finalFilename}`
-    // });
   } catch (err) {
     console.error("Upload error:", err);
     res.status(500).send('Internal Server Error');
   }
+});
+
+app.listen(3001, () => {
+  console.log('Server listening on port 3001');
 });
 
 app.post('/signed/:filename', uploadDisk.single('signed'), async (req, res) => {
