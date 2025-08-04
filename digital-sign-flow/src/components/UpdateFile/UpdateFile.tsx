@@ -89,18 +89,12 @@ function UploadForm() {
           סיום חתימה ושליחה
         </button>
       )} */}
-      <a
-  href={fileUrl}
-  target="_blank"
-  rel="noopener noreferrer"
->
-  לצפייה ולחתימה
-</a>
+      
 
-      {/* {fileUrl && (
+      {fileUrl && (
       <a href={encodeURI(fileUrl)} target="_blank" rel="noopener noreferrer">
         לצפייה בקובץ ולחתימה
-      </a>)} */}
+      </a>)}
     </div>
   );
 }
