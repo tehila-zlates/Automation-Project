@@ -86,14 +86,34 @@ function UploadForm() {
           </button>
         </form>
         {fileUrl && (
-          <a
-            href={`/sign/${encodeURIComponent(fileUrl)}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="btn btn-link d-block mt-2 text-center"
-          >
-            לצפייה בקובץ ולחתימה
-          </a>
+          // <a
+          //   href={`/sign/${encodeURIComponent(fileUrl)}`}
+          //   target="_blank"
+          //   rel="noopener noreferrer"
+          //   className="btn btn-link d-block mt-2 text-center"
+          // >
+          //   לצפייה בקובץ ולחתימה
+          // </a>
+          <div>
+  <label htmlFor="shareLink">לינק לשיתוף:</label>
+  <input
+    id="shareLink"
+    type="text"
+    readOnly
+    value={`${window.location.origin}/sign/${encodeURIComponent(fileUrl)}`}
+    onClick={(e) => e.currentTarget.select()}
+    className="form-control my-2"
+  />
+  <a
+    href={`/sign/${encodeURIComponent(fileUrl)}`}
+    target="_blank"
+    rel="noopener noreferrer"
+    className="btn btn-link"
+  >
+    לצפייה בקובץ
+  </a>
+</div>
+
         )}
       </div>
     </div>
