@@ -1,20 +1,23 @@
-# שלב 1: שימוש בתמונה של Node.js
-FROM node:20
+# משתמשים בתמונה רשמית של Node עם בסיס דביאן
+FROM node:18-bullseye
 
-# שלב 2: יצירת תיקיית עבודה בתוך הקונטיינר
-WORKDIR /app
+# מתקינים LibreOffice
+RUN apt-get update && apt-get install -y libreoffice
 
-# שלב 3: העתקת קבצי הפרויקט לקונטיינר
+# יוצרים תיקייה לפרויקט
+WORKDIR /usr/src/app
+
+# מעתיקים את package.json ו-package-lock.json
 COPY package*.json ./
 
-# שלב 4: התקנת תלויות
+# מתקינים תלותיות
 RUN npm install
 
-# שלב 5: העתקת שאר קבצי הקוד
+# מעתיקים את כל הקוד לתוך הקונטיינר
 COPY . .
 
-# שלב 6: פתיחת פורט (אם את מריצה על פורט 3000 לדוגמה)
+# מגדירים את הפורט שהאפליקציה מאזינה עליו
 EXPOSE 3001
 
-# שלב 7: הרצת האפליקציה
-CMD ["npm", "start"]
+# פקודת הרצה
+CMD ["node", "index.js"]
