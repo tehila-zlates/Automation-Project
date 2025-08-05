@@ -46,63 +46,7 @@ function UploadForm() {
       alert('Upload failed');
     }
   };
-  const toSignPage = () => {
-    navigate(`/sign/${fileUrl}`);
-  };
-  // return (
-  //   <div>
-  //     <h2>העלאת מסמך</h2>
-  //     <form onSubmit={handleSubmit}>
-  //       <div className="form-group mb-3">
-  //         <label htmlFor="email">כתובת אימייל</label>
-  //         <input
-  //           type="email"
-  //           className="form-control"
-  //           id="email"
-  //           placeholder="הכנס כתובת אימייל"
-  //           value={email}
-  //           onChange={(e) => setEmail(e.target.value)}
-  //         />
-  //       </div>
-  //       <div className="form-group mb-3">
-  //         <label htmlFor="fileUpload">להעלאת הקובץ</label>
-  //         <input
-  //           type="file"
-  //           className="form-control"
-  //           id="fileUpload"
-  //           onChange={(e) => {
-  //             if (e.target.files && e.target.files.length > 0) {
-  //               setFile(e.target.files[0]);
-  //             }
-  //           }}
-  //         />
-  //       </div>
-  //       {error && (
-  //         <div className="alert alert-danger" role="alert">
-  //           {error}
-  //         </div>
-  //       )}
-  //       <button type="submit" className="btn btn-primary">
-  //         שלח
-  //       </button>
-  //     </form>
-  //     {fileUrl && (
-  //       <button className="btn btn-success mt-2" onClick={toSignPage}>
-  //         סיום חתימה ושליחה
-  //       </button>
-  //     )}
 
-
-  //     {/* {fileUrl && (
-  //       // <a href={encodeURI(fileUrl)} target="_blank" rel="noopener noreferrer">
-  //       //   לצפייה בקובץ ולחתימה
-  //       // </a>)
-  //       <a href={`/sign/${encodeURIComponent(fileUrl)}`} target="_blank" rel="noopener noreferrer">
-  //         לצפייה בקובץ ולחתימה
-  //       </a>)
-  //     } */}
-  //   </div>
-  // );
   return (
     <div
       className="d-flex justify-content-center align-items-center"
@@ -154,32 +98,10 @@ function UploadForm() {
           לצפייה בקובץ ולחתימה
         </a>
       )} 
-        {/* {fileUrl && (
-          
-          <button className="btn btn-success w-100 mt-3" onClick={toSignPage}>
-            סיום חתימה ושליחה
-          </button>
-        )} */}
-
-        {/* דוגמת קישור ישיר (לא חובה) */}
-        {/* 
-      {fileUrl && (
-        <a
-          href={`/sign/${encodeURIComponent(fileUrl)}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="btn btn-link d-block mt-2 text-center"
-        >
-          לצפייה בקובץ ולחתימה
-        </a>
-      )} 
-      */}
       </div>
     </div>
   );
 
 }
-//         <a href={`/sign/${encodeURIComponent(fileUrl)}`} target="_blank" rel="noopener noreferrer">
-//   לצפייה בקובץ ולחתימה
-// </a>
+
 export default UploadForm;

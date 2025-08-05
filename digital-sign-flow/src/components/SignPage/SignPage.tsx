@@ -48,7 +48,6 @@ function SignPage() {
     }
   };
 
-  // if (done) return <p>הקובץ נחתם ונשלח למייל בהצלחה!</p>;
   if (done)
     return (
       <div className="d-flex justify-content-center align-items-center" style={{ height: '100vh' }}>
@@ -66,47 +65,3 @@ function SignPage() {
 }
 
 export default SignPage;
-
-// import React, { useState } from 'react';
-// import { useParams } from 'react-router-dom';
-// import SignDocument from '../SignaturePad/SignaturePad';
-
-// function SignPage() {
-//   const { filename } = useParams<{ filename: string }>();
-//   const [showSigner, setShowSigner] = useState(true); // <-- שורה זו שונתה
-
-//   const fileUrl = `https://automation-project-server.onrender.com/uploads/${filename}`;
-//   console.log(fileUrl);
-
-//   if (!filename) return <div>שגיאה: לא נמצא שם קובץ</div>;
-
-//   return (
-//     <div className="container mt-5 text-center">
-//       {showSigner ? (
-//         <SignDocument
-//           fileUrl={fileUrl}
-//           onSigned={(signedBlob) => {
-//             console.log("חתום בהצלחה", signedBlob);
-//             // אפשר גם setDone או שליחה למייל
-//           }}
-//         />
-//       ) : (
-//         <>
-//           <h2>לצפייה וחתימה על המסמך</h2>
-//           <a
-//             href="#"
-//             className="btn btn-primary"
-//             onClick={(e) => {
-//               e.preventDefault();
-//               setShowSigner(true);
-//             }}
-//           >
-//             לחץ כאן לפתיחת המסמך
-//           </a>
-//         </>
-//       )}
-//     </div>
-//   );
-// }
-
-// export default SignPage;

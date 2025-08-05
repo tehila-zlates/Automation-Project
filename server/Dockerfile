@@ -1,26 +1,20 @@
-# השתמש בבסיס של Node.js (גרסה עדכנית, לדוגמה 18)
-FROM node:18-slim
+# שלב 1: שימוש בתמונה של Node.js
+FROM node:20
 
-# התקן חבילות דרושות להפעלת LibreOffice
-RUN apt-get update && apt-get install -y \
-    libreoffice \
-    fonts-dejavu \
-    && rm -rf /var/lib/apt/lists/*
-
-# יצירת תיקיית עבודה
+# שלב 2: יצירת תיקיית עבודה בתוך הקונטיינר
 WORKDIR /app
 
-# העתק את package.json ו package-lock.json (אם יש)
+# שלב 3: העתקת קבצי הפרויקט לקונטיינר
 COPY package*.json ./
 
-# התקן את התלויות
+# שלב 4: התקנת תלויות
 RUN npm install
 
-# העתק את כל הקוד לתוך המכולה
+# שלב 5: העתקת שאר קבצי הקוד
 COPY . .
 
-# חשוף פורט 3001 (או מה שהשרת שלך משתמש בו)
+# שלב 6: פתיחת פורט (אם את מריצה על פורט 3000 לדוגמה)
 EXPOSE 3001
 
-# הפעלת השרת
-CMD ["node", "index.js"]
+# שלב 7: הרצת האפליקציה
+CMD ["npm", "start"]

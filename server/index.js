@@ -40,57 +40,11 @@ const transporter = nodemailer.createTransport({
 //     const { email } = req.body;
 //     if (!file || !email) return res.status(400).send('Missing file or email');
 
-//     let finalFilename = Date.now().toString();
-//     const uploadPath = path.join(__dirname, 'uploads', finalFilename);
-
-//     if (file.mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
-//       const result = await mammoth.convertToHtml({ buffer: file.buffer });
-//       const text = result.value.replace(/<[^>]+>/g, '');
-
-//       const pdfDoc = await PDFDocument.create();
-//       pdfDoc.registerFontkit(fontkit);
-//       const font = await pdfDoc.embedFont(fs.readFileSync(path.join(__dirname, 'fonts', 'Alef-Regular.ttf')));
-//       const page = pdfDoc.addPage([595.28, 841.89]);
-
-//       page.drawText(text, {
-//         x: 50, y: page.getHeight() - 50,
-//         size: 14, font, maxWidth: 495, lineHeight: 20,
-//       });
-
-//       fs.writeFileSync(uploadPath, await pdfDoc.save());
-//     } else if (file.mimetype === 'application/pdf') {
-//       finalFilename = Date.now() + '-' + file.originalname;
-//       fs.writeFileSync(path.join(__dirname, 'uploads', finalFilename), file.buffer);
-//     } else {
-//       return res.status(400).send('Unsupported file type');
-//     }
-
-//     emailMap.set(finalFilename, email);
-//     console.log("===============");
-//     console.log(finalFilename);
-//     console.log(email);
-//     console.log(emailMap);
-
-//     res.json({
-//       fileUrl: `https://automation-project-server.onrender.com/uploads/${finalFilename}`,
-//       signPageUrl: `https://automation-digital-sign-flow.onrender.com/sign/${finalFilename}`
-//     });
-
-//   } catch (err) {
-//     console.error("Upload error:", err);
-//     res.status(500).send('Internal Server Error');
-//   }
-// });
-
-// app.post('/upload', uploadMemory.single('file'), async (req, res) => {
-//   try {
-//     const { file } = req;
-//     const { email } = req.body;
-//     if (!file || !email) return res.status(400).send('Missing file or email');
-
-//     // תמיד אותו שם, בלי סיומת
 //     const finalFilename = Date.now().toString();
-//     const uploadPath = path.join(__dirname, 'uploads', finalFilename);
+//     const uploadPathNoExt = path.join(__dirname, 'uploads', finalFilename);
+//     const uploadPathWithPdf = path.join(__dirname, 'uploads', finalFilename + '.pdf');
+
+//     let pdfBytes;
 
 //     if (file.mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
 //       const result = await mammoth.convertToHtml({ buffer: file.buffer });
@@ -110,15 +64,17 @@ const transporter = nodemailer.createTransport({
 //         lineHeight: 20,
 //       });
 
-//       const pdfBytes = await pdfDoc.save();
-//       fs.writeFileSync(uploadPath, pdfBytes);
+//       pdfBytes = await pdfDoc.save();
 //     } else if (file.mimetype === 'application/pdf') {
-//       fs.writeFileSync(uploadPath, file.buffer);
+//       pdfBytes = file.buffer;
 //     } else {
 //       return res.status(400).send('Unsupported file type');
 //     }
 
-//     // מיפוי מייל לפי שם קובץ (ללא סיומת)
+//     // שמירה פעמיים - בלי סיומת ועם סיומת
+//     fs.writeFileSync(uploadPathNoExt, pdfBytes);
+//     fs.writeFileSync(uploadPathWithPdf, pdfBytes);
+
 //     emailMap.set(finalFilename, email);
 
 //     console.log("===============");
@@ -127,7 +83,7 @@ const transporter = nodemailer.createTransport({
 //     console.log("emailMap:", emailMap);
 
 //     res.json({
-//       fileUrl: `https://automation-project-server.onrender.com/uploads/${finalFilename}`,
+//       fileUrl: `https://automation-project-server.onrender.com/uploads/${finalFilename}.pdf`,
 //       signPageUrl: `https://automation-digital-sign-flow.onrender.com/sign/${finalFilename}`,
 //       filename: finalFilename
 //     });
@@ -137,6 +93,10 @@ const transporter = nodemailer.createTransport({
 //     res.status(500).send('Internal Server Error');
 //   }
 // });
+
+const libre = require('libreoffice-convert');
+const { v4: uuidv4 } = require('uuid');
+
 app.post('/upload', uploadMemory.single('file'), async (req, res) => {
   try {
     const { file } = req;
@@ -150,40 +110,27 @@ app.post('/upload', uploadMemory.single('file'), async (req, res) => {
     let pdfBytes;
 
     if (file.mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
-      const result = await mammoth.convertToHtml({ buffer: file.buffer });
-      const text = result.value.replace(/<[^>]+>/g, '');
-
-      const pdfDoc = await PDFDocument.create();
-      pdfDoc.registerFontkit(fontkit);
-      const font = await pdfDoc.embedFont(fs.readFileSync(path.join(__dirname, 'fonts', 'Alef-Regular.ttf')));
-      const page = pdfDoc.addPage([595.28, 841.89]);
-
-      page.drawText(text, {
-        x: 50,
-        y: page.getHeight() - 50,
-        size: 14,
-        font,
-        maxWidth: 495,
-        lineHeight: 20,
+      // המרה אמיתית בעזרת libreoffice
+      pdfBytes = await new Promise((resolve, reject) => {
+        libre.convert(file.buffer, '.pdf', undefined, (err, done) => {
+          if (err) {
+            console.error('Error converting file:', err);
+            reject(err);
+          }
+          resolve(done);
+        });
       });
-
-      pdfBytes = await pdfDoc.save();
     } else if (file.mimetype === 'application/pdf') {
       pdfBytes = file.buffer;
     } else {
       return res.status(400).send('Unsupported file type');
     }
 
-    // שמירה פעמיים - בלי סיומת ועם סיומת
+    // שמירה גם בלי סיומת וגם עם
     fs.writeFileSync(uploadPathNoExt, pdfBytes);
     fs.writeFileSync(uploadPathWithPdf, pdfBytes);
 
     emailMap.set(finalFilename, email);
-
-    console.log("===============");
-    console.log("finalFilename:", finalFilename);
-    console.log("email:", email);
-    console.log("emailMap:", emailMap);
 
     res.json({
       fileUrl: `https://automation-project-server.onrender.com/uploads/${finalFilename}.pdf`,
@@ -196,6 +143,7 @@ app.post('/upload', uploadMemory.single('file'), async (req, res) => {
     res.status(500).send('Internal Server Error');
   }
 });
+
 
 // app.post('/upload', uploadMemory.single('file'), async (req, res) => {
 //   try {
@@ -442,6 +390,21 @@ app.post('/upload', uploadMemory.single('file'), async (req, res) => {
 //     res.status(500).send('Error while processing signed file');
 //   }
 // });
+
+function convertDocToPdf(inputPath, outputPath) {
+  return new Promise((resolve, reject) => {
+    const command = `libreoffice --headless --convert-to pdf --outdir "${path.dirname(outputPath)}" "${inputPath}"`;
+
+    exec(command, (error, stdout, stderr) => {
+      if (error) {
+        console.error(`LibreOffice conversion error: ${stderr}`);
+        return reject(error);
+      }
+      console.log(`LibreOffice conversion stdout: ${stdout}`);
+      resolve(outputPath);
+    });
+  });
+}
 
 app.post('/signed/:filename', uploadDisk.single('signed'), async (req, res) => {
   try {
