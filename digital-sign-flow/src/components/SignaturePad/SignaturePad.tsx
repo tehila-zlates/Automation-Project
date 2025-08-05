@@ -5,7 +5,9 @@ function SignDocument({ fileUrl, onSigned }: { fileUrl: string; onSigned: (blob:
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isDrawing, setIsDrawing] = useState(false);
+
   fileUrl = fileUrl + ".pdf";
+  
   useEffect(() => {
     // הגדרת קנבס חתימה בגודל רוחב חלון וגובה 200 פיקסלים
     const canvas = canvasRef.current;

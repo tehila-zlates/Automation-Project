@@ -10,9 +10,6 @@ function SignPage() {
     return `https://automation-project-server.onrender.com/uploads/${filename}`;
   }, [filename]);
 
-  console.log("fileUrl");
-  console.log(fileUrl);
-
   if (!filename) {
     return <p>שם הקובץ לא זמין</p>;
   }

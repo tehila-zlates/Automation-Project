@@ -94,8 +94,62 @@ const transporter = nodemailer.createTransport({
 //   }
 // });
 
-const libre = require('libreoffice-convert');
-const { v4: uuidv4 } = require('uuid');
+// const libre = require('libreoffice-convert');
+// const { v4: uuidv4 } = require('uuid');
+
+// app.post('/upload', uploadMemory.single('file'), async (req, res) => {
+//   try {
+//     const { file } = req;
+//     const { email } = req.body;
+//     if (!file || !email) return res.status(400).send('Missing file or email');
+
+//     const finalFilename = Date.now().toString();
+//     const uploadPathNoExt = path.join(__dirname, 'uploads', finalFilename);
+//     const uploadPathWithPdf = path.join(__dirname, 'uploads', finalFilename + '.pdf');
+
+//     let pdfBytes;
+
+//     if (file.mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+//       // המרה אמיתית בעזרת libreoffice
+//       pdfBytes = await new Promise((resolve, reject) => {
+//         libre.convert(file.buffer, '.pdf', undefined, (err, done) => {
+//           if (err) {
+//             console.error('Error converting file:', err);
+//             reject(err);
+//           }
+//           resolve(done);
+//         });
+//       });
+//     } else if (file.mimetype === 'application/pdf') {
+//       pdfBytes = file.buffer;
+//     } else {
+//       return res.status(400).send('Unsupported file type');
+//     }
+
+//     // שמירה גם בלי סיומת וגם עם
+//     fs.writeFileSync(uploadPathNoExt, pdfBytes);
+//     fs.writeFileSync(uploadPathWithPdf, pdfBytes);
+
+//     emailMap.set(finalFilename, email);
+
+//     res.json({
+//       fileUrl: `https://automation-project-server.onrender.com/uploads/${finalFilename}.pdf`,
+//       signPageUrl: `https://automation-digital-sign-flow.onrender.com/sign/${finalFilename}`,
+//       filename: finalFilename
+//     });
+
+//   } catch (err) {
+//     console.error("Upload error:", err);
+//     res.status(500).send('Internal Server Error');
+//   }
+// });
+const cloudmersiveConvertApiClient = require('cloudmersive-convert-api-client');
+
+const defaultClient = cloudmersiveConvertApiClient.ApiClient.instance;
+const Apikey = defaultClient.authentications['Apikey'];
+Apikey.apiKey = 'eb65c816-005f-4635-8e23-37e2604c3cd1';
+
+const convertApi = new cloudmersiveConvertApiClient.ConvertDocumentApi();
 
 app.post('/upload', uploadMemory.single('file'), async (req, res) => {
   try {
@@ -110,23 +164,23 @@ app.post('/upload', uploadMemory.single('file'), async (req, res) => {
     let pdfBytes;
 
     if (file.mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
-      // המרה אמיתית בעזרת libreoffice
-      pdfBytes = await new Promise((resolve, reject) => {
-        libre.convert(file.buffer, '.pdf', undefined, (err, done) => {
-          if (err) {
-            console.error('Error converting file:', err);
-            reject(err);
+      // שימוש ב-Cloudmersive להמרת Word ל-PDF
+      const converted = await new Promise((resolve, reject) => {
+        convertApi.convertDocumentDocxToPdf(file.buffer, (error, data) => {
+          if (error) {
+            console.error('Cloudmersive conversion error:', error);
+            return reject(error);
           }
-          resolve(done);
+          resolve(data);
         });
       });
+      pdfBytes = converted;
     } else if (file.mimetype === 'application/pdf') {
       pdfBytes = file.buffer;
     } else {
       return res.status(400).send('Unsupported file type');
     }
 
-    // שמירה גם בלי סיומת וגם עם
     fs.writeFileSync(uploadPathNoExt, pdfBytes);
     fs.writeFileSync(uploadPathWithPdf, pdfBytes);
 
@@ -143,7 +197,6 @@ app.post('/upload', uploadMemory.single('file'), async (req, res) => {
     res.status(500).send('Internal Server Error');
   }
 });
-
 
 // app.post('/upload', uploadMemory.single('file'), async (req, res) => {
 //   try {
@@ -209,6 +262,7 @@ app.post('/upload', uploadMemory.single('file'), async (req, res) => {
 //     res.status(500).send('Internal Server Error');
 //   }
 // });
+
 // const cloudConvert = new CloudConvert('eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiMDAzODk5ZmMzNjBkYzA2MDM2ZmNhODJhMGUyZmFlZjlmNjEyNmQzODRhNWJhOGYyOWI3YmM0ODFiMTFkOTQ3YTA1ODQ5ZThkMzkwNjU0MzEiLCJpYXQiOjE3NTQzMTMxNzYuOTI5OTExLCJuYmYiOjE3NTQzMTMxNzYuOTI5OTEyLCJleHAiOjQ5MDk5ODY3NzYuOTI1MTQyLCJzdWIiOiI3MjU2NDgyMCIsInNjb3BlcyI6WyJ1c2VyLnJlYWQiLCJ1c2VyLndyaXRlIiwidGFzay5yZWFkIiwidGFzay53cml0ZSIsIndlYmhvb2sucmVhZCIsIndlYmhvb2sud3JpdGUiLCJwcmVzZXQucmVhZCIsInByZXNldC53cml0ZSJdfQ.foQ4RKiDidHX7vZeHLW0z1_gG5XrvlZJPuHmbhrvDcmIBlWmMqe7p0Xq2aO8zebgJeLt7HQjVKoFYTlsZYHGqIf0AyCp6Ozvou85dfZU4C_fG-2K_AbnFkt8mbtVZZFNZwF31j6eu6Qcx2KDMK0oH8BNA0OEhRTfJSp_Y6eqI1wCMJctBZXBmZNQ7Kqy_c9l_9OQoxJUkcONONF_Tp2nTggOk03YGXXKe0XTC-IbNTMRX42glE4Fq1bRY-MU0df4v8C1BjBEhtU72ZQ6-2w9otXJeE4jBWhgi0NGXizt68klynLSVGoFGneCwwiWFt3AxVm6Zuhp36qbjJVfwHzSEmm5EicKZCVQ65Zc-GWfsgJCoCj3JLHMOa4Kar5NIrcyVvTekaQmJ_uOyQ10HxSZrnrRGqvcPzKp6lV6RZmeqjZ0aLrVp9gFn1NPcE25X6-VRkLeu5xV4ULOG-WbM-jVu3FdaXPgLlOlOjYuU8encX6TIMk9g-ATT_QSkhBFqhpLNc4Ox2uKZZtAe6iTfA0VwnaQqjzRhvifa9GC9Rkc_0Ox_6Nw_pRxSSEO1ewp7GLld2VLxhteUI4H4PMihpQvnQuskOWc3ewNkO7vR5YU6hYObwWRR8A5nTTvrbEev5-731Z5hg3p5RKwnW2XfnqEsjnDdTzWkYZuqRk_oJ_1Iyc');
 
 // app.post('/upload', uploadMemory.single('file'), async (req, res) => {

@@ -1,22 +1,26 @@
 # משתמשים בתמונה רשמית של Node עם בסיס דביאן
-FROM node:18-bullseye
+FROM node:20-bullseye
 
-# מתקינים LibreOffice
-RUN apt-get update && apt-get install -y libreoffice
+# מתקינים LibreOffice ומנקים cache של apt להפחתת גודל התמונה
+RUN apt-get update && apt-get install -y libreoffice && rm -rf /var/lib/apt/lists/*
 
 # יוצרים תיקייה לפרויקט
 WORKDIR /usr/src/app
 
-# מעתיקים את package.json ו-package-lock.json
+# מונעים הורדת דפדפן כרום ב-puppeteer
+ENV PUPPETEER_SKIP_DOWNLOAD=true
+ENV NODE_ENV=production
+
+# מעתיקים רק את קבצי התלויות כדי לייעל את הבנייה
 COPY package*.json ./
 
-# מתקינים תלותיות
+# מתקינים את התלויות
 RUN npm install
 
-# מעתיקים את כל הקוד לתוך הקונטיינר
+# מעתיקים את כל הקוד לפרויקט
 COPY . .
 
-# מגדירים את הפורט שהאפליקציה מאזינה עליו
+# פותחים את הפורט שהאפליקציה מאזינה עליו
 EXPOSE 3001
 
 # פקודת הרצה

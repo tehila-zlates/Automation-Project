@@ -8,7 +8,6 @@ function UploadForm() {
   const [file, setFile] = useState<File | null>(null);
   const [error, setError] = useState('');
   const [fileUrl, setFileUrl] = useState('');
-  const navigate = useNavigate();
 
   const validateEmail = (email: string) => validator.isEmail(email);
   const handleSubmit = async (e: any) => {
@@ -23,7 +22,7 @@ function UploadForm() {
     }
     const formData = new FormData();
     formData.append('email', email);
-    formData.append('file', file);    
+    formData.append('file', file);
 
     try {
       const res = await fetch('https://automation-project-server.onrender.com/upload', {
@@ -36,8 +35,6 @@ function UploadForm() {
 
       if (res.ok) {
         setFileUrl(data.filename);
-        console.log("4564654");
-        
       } else {
         alert(data.message || 'Error uploading file');
       }
@@ -63,7 +60,7 @@ function UploadForm() {
               id="email"
               placeholder="הכנס כתובת אימייל"
               value={email}
-              onChange={(e) => setEmail(e.target.value)} 
+              onChange={(e) => setEmail(e.target.value)}
             />
           </div>
           <div className="form-group mb-3">
@@ -74,7 +71,7 @@ function UploadForm() {
               id="fileUpload"
               onChange={(e) => {
                 if (e.target.files && e.target.files.length > 0) {
-                  setFile(e.target.files[0]); 
+                  setFile(e.target.files[0]);
                 }
               }}
             />
@@ -88,16 +85,16 @@ function UploadForm() {
             שלח
           </button>
         </form>
- {fileUrl && (
-        <a
-          href={`/sign/${encodeURIComponent(fileUrl)}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="btn btn-link d-block mt-2 text-center"
-        >
-          לצפייה בקובץ ולחתימה
-        </a>
-      )} 
+        {fileUrl && (
+          <a
+            href={`/sign/${encodeURIComponent(fileUrl)}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn btn-link d-block mt-2 text-center"
+          >
+            לצפייה בקובץ ולחתימה
+          </a>
+        )}
       </div>
     </div>
   );
